@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 
 import { getSessionCookieName } from '@/lib/auth';
 import { getPredictionsScreenState, getUserFromSessionToken, savePredictions } from '@/lib/db';
@@ -16,6 +17,10 @@ export async function POST(request: Request) {
     }
 
     const result = await savePredictions(user.id, body.predictions ?? []);
+    revalidatePath('/predictions');
+    revalidatePath('/profile');
+    revalidatePath('/leaderboard');
+    revalidatePath('/');
     const state = await getPredictionsScreenState(token);
     return NextResponse.json({ ok: true, state, lockedMatches: result.lockedMatches });
   } catch (error) {

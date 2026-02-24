@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@instantdb/admin": "^0.21.13",
-    "mercadopago": "^2.12.0",
     "next": "14.2.25",
     "react": "18.3.1",
     "react-dom": "18.3.1"

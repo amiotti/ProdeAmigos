@@ -28,10 +28,17 @@ function isPredictionEditable(kickoffAt: string, nowMs = Date.now()) {
   return nowMs < kickoffMs - 60 * 60 * 1000;
 }
 
+function hasMatchStarted(kickoffAt: string, nowMs = Date.now()) {
+  const kickoffMs = new Date(kickoffAt).getTime();
+  if (!Number.isFinite(kickoffMs)) return true;
+  return nowMs >= kickoffMs;
+}
+
 export function PredictionsBoard({ initialState = null }: { initialState?: StateResponse | null }) {
   const [state, setState] = useState<StateResponse | null>(initialState);
   const [loading, setLoading] = useState(!initialState);
   const [saving, setSaving] = useState(false);
+  const [savingMatchId, setSavingMatchId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [selectedGroupId, setSelectedGroupId] = useState('ALL');
   const [drafts, setDrafts] = useState<DraftMap>({});
@@ -81,15 +88,18 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
 
   const groupedMatches = useMemo(() => {
     if (!state) return [] as Array<{ groupId: string; groupName: string; teams: string[]; matches: Match[] }>;
+    const nowMs = Date.now();
     return state.db.groups.map((group) => ({
       groupId: group.id,
       groupName: group.name,
       teams: group.teams,
-      matches: state.db.matches.filter((m) => m.groupId === group.id).sort(sortMatches),
+      matches: state.db.matches.filter((m) => m.groupId === group.id && !hasMatchStarted(m.kickoffAt, nowMs)).sort(sortMatches),
     }));
   }, [state]);
 
-  const visibleGroups = groupedMatches.filter((group) => selectedGroupId === 'ALL' || group.groupId === selectedGroupId);
+  const visibleGroups = groupedMatches.filter(
+    (group) => (selectedGroupId === 'ALL' || group.groupId === selectedGroupId) && group.matches.length > 0,
+  );
 
   function setDraft(matchId: string, side: 'home' | 'away', value: string) {
     if (lockedMatchIds.has(matchId)) return;
@@ -105,14 +115,20 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
     }));
   }
 
-  async function savePredictions() {
+  async function savePredictions(targetMatchId?: string) {
     if (!currentUser) {
       setMessage('Debes iniciar sesion para cargar predicciones.');
       return;
     }
 
     const predictions = Object.entries(drafts)
-      .filter(([matchId, score]) => !lockedMatchIds.has(matchId) && score.home !== '' && score.away !== '')
+      .filter(
+        ([matchId, score]) =>
+          (!targetMatchId || matchId === targetMatchId) &&
+          !lockedMatchIds.has(matchId) &&
+          score.home !== '' &&
+          score.away !== '',
+      )
       .map(([matchId, score]) => ({
         matchId,
         homeGoals: Number(score.home),
@@ -124,7 +140,11 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
       return;
     }
 
-    setSaving(true);
+    if (targetMatchId) {
+      setSavingMatchId(targetMatchId);
+    } else {
+      setSaving(true);
+    }
     setMessage(null);
     try {
       const response = await fetch('/api/predictions', {
@@ -143,12 +163,18 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
       setMessage(
         locked.length > 0
           ? `Predicciones guardadas. ${locked.length} partido(s) ya estan cerrados (menos de 1 hora para el inicio) y no se modificaron.`
-          : 'Predicciones guardadas correctamente. Puedes editarlas hasta 1 hora antes de cada partido.',
+          : targetMatchId
+            ? 'Prediccion guardada correctamente. Puedes editarla hasta 1 hora antes del partido.'
+            : 'Predicciones guardadas correctamente. Puedes editarlas hasta 1 hora antes de cada partido.',
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Error al guardar predicciones');
     } finally {
-      setSaving(false);
+      if (targetMatchId) {
+        setSavingMatchId(null);
+      } else {
+        setSaving(false);
+      }
     }
   }
 
@@ -156,7 +182,7 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
     setPaying(true);
     setMessage(null);
     try {
-      const response = await fetch('/api/payments/mercadopago/preference', {
+      const response = await fetch('/api/payments/galio/link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -164,8 +190,8 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
       if (!response.ok || !data.ok) {
         throw new Error(data.error || 'No se pudo generar el pago');
       }
-      const redirectUrl = (data.sandboxInitPoint || data.initPoint) as string | undefined;
-      if (!redirectUrl) throw new Error('Mercado Pago no devolvio URL de checkout');
+      const redirectUrl = data.url as string | undefined;
+      if (!redirectUrl) throw new Error('GalioPay no devolvio URL de checkout');
       window.location.href = redirectUrl;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'No se pudo iniciar el pago');
@@ -216,7 +242,7 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
         </p>
         <div className="cta-row">
           <button className="btn btn-primary" type="button" onClick={startRegistrationPayment} disabled={paying}>
-            {paying ? 'Redirigiendo a Mercado Pago...' : 'Pagar inscripcion'}
+            {paying ? 'Redirigiendo a GalioPay...' : 'Pagar inscripcion'}
           </button>
           <Link className="cta-link" href="/payment/return">
             Revisar estado del pago
@@ -250,9 +276,7 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
           </select>
         </label>
 
-        <button className="btn btn-primary" type="button" onClick={savePredictions} disabled={saving}>
-          {saving ? 'Guardando...' : 'Guardar predicciones'}
-        </button>
+        <div className="readonly-note" aria-hidden="true" />
       </div>
 
       <div className="panel">
@@ -268,7 +292,7 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
         <div key={group.groupId} className="panel stack-md">
           <div className="section-head">
             <h3>{group.groupName}</h3>
-            <span>{group.matches.length} partidos</span>
+            <span>{group.matches.length} partidos pendientes</span>
           </div>
 
           <div className="teams-chip-row">
@@ -328,6 +352,21 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
                       aria-label={`Goles ${match.awayTeam}`}
                       disabled={isLocked}
                     />
+                    <button
+                      className="btn btn-primary btn-small"
+                      type="button"
+                      onClick={() => savePredictions(match.id)}
+                      disabled={
+                        isLocked ||
+                        saving ||
+                        savingMatchId === match.id ||
+                        draft.home === '' ||
+                        draft.away === ''
+                      }
+                      title="Guardar esta prediccion"
+                    >
+                      {savingMatchId === match.id ? 'Guardando...' : 'Guardar'}
+                    </button>
                   </div>
                 </div>
               );
@@ -335,6 +374,11 @@ export function PredictionsBoard({ initialState = null }: { initialState?: State
           </div>
         </div>
       ))}
+      {visibleGroups.length === 0 ? (
+        <div className="panel">
+          <p className="muted">No hay partidos disponibles para predecir en el filtro actual (solo se muestran partidos futuros).</p>
+        </div>
+      ) : null}
     </section>
   );
 }

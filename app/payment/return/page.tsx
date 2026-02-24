@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 
 import { getSessionCookieName } from '@/lib/auth';
 import { getUserFromSessionToken, markUserRegistrationPaymentApproved } from '@/lib/db';
+import { getGalioPayment, isGalioApprovedStatus } from '@/lib/galiopay';
 
 type PaymentReturnPageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
@@ -12,13 +13,13 @@ function getText(status: string | undefined) {
   if (status === 'success' || status === 'approved') {
     return {
       title: 'Pago aprobado',
-      description: 'La inscripcion fue pagada correctamente (simulacro Mercado Pago). Ya puedes continuar en la app.',
+      description: 'La inscripcion fue pagada correctamente. Ya puedes continuar en la app.',
     };
   }
   if (status === 'pending') {
     return {
       title: 'Pago pendiente',
-      description: 'Mercado Pago informa el cobro como pendiente. Puedes revisar el estado y reintentar si hace falta.',
+      description: 'El cobro figura como pendiente. Puedes revisar el estado y reintentar si hace falta.',
     };
   }
   if (status === 'failure') {
@@ -29,18 +30,37 @@ function getText(status: string | undefined) {
   }
   return {
     title: 'Retorno de pago',
-    description: 'Volviste desde Mercado Pago. Revisa el estado del pago e ingresa a la app.',
+    description: 'Volviste desde la plataforma de pagos. Revisa el estado del pago e ingresa a la app.',
   };
 }
 
 export default async function PaymentReturnPage({ searchParams }: PaymentReturnPageProps) {
   const raw = searchParams?.status;
   const status = Array.isArray(raw) ? raw[0] : raw;
+  const rawProvider = searchParams?.provider;
+  const provider = Array.isArray(rawProvider) ? rawProvider[0] : rawProvider;
+  const rawGalioPaymentId = searchParams?.galio_payment_id;
+  const galioPaymentId = Array.isArray(rawGalioPaymentId) ? rawGalioPaymentId[0] : rawGalioPaymentId;
   const token = cookies().get(getSessionCookieName())?.value ?? null;
   const sessionUser = await getUserFromSessionToken(token);
   let approvedNow = false;
+  let galioPaymentStatus: string | null = null;
+  let galioPaymentFetchError = false;
 
-  if ((status === 'success' || status === 'approved') && sessionUser && sessionUser.role !== 'admin') {
+  if (galioPaymentId) {
+    try {
+      const payment = await getGalioPayment(galioPaymentId);
+      galioPaymentStatus = payment.status ?? null;
+    } catch (error) {
+      galioPaymentFetchError = true;
+    }
+  }
+
+  const approvalSignal = galioPaymentId
+    ? isGalioApprovedStatus(galioPaymentStatus)
+    : status === 'success' || status === 'approved';
+
+  if (approvalSignal && sessionUser && sessionUser.role !== 'admin') {
     try {
       const before = sessionUser.registrationPaymentStatus;
       const updated = await markUserRegistrationPaymentApproved(sessionUser.id);
@@ -51,6 +71,8 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
   }
 
   const text = getText(status);
+  const receiptNumber = galioPaymentId ?? null;
+  const shouldShowLogin = !sessionUser;
 
   return (
     <section className="stack-lg">
@@ -58,25 +80,23 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
         <h2>{text.title}</h2>
         <p className="muted">{text.description}</p>
         {approvedNow ? (
-          <p className="status">Pago marcado como aprobado en tu usuario (simulacro local, sin webhook).</p>
+          <p className="status">Pago marcado como aprobado en tu usuario (validado en retorno, sin webhook).</p>
         ) : null}
-        <div className="chips-row">
-          {status ? <span className="chip">Estado: {status}</span> : null}
-          {searchParams?.collection_id ? <span className="chip">Collection: {String(searchParams.collection_id)}</span> : null}
-          {searchParams?.payment_id ? <span className="chip">Payment: {String(searchParams.payment_id)}</span> : null}
-          {searchParams?.merchant_order_id ? (
-            <span className="chip">Merchant Order: {String(searchParams.merchant_order_id)}</span>
-          ) : null}
-        </div>
+        {receiptNumber ? <p className="muted">N° de comprobante: <strong>{receiptNumber}</strong></p> : null}
         {sessionUser && sessionUser.role !== 'admin' ? (
           <p className="muted">
             Estado de inscripcion actual: <strong>{approvedNow ? 'approved' : sessionUser.registrationPaymentStatus ?? 'pending'}</strong>
           </p>
         ) : null}
+        {provider === 'galio' && galioPaymentFetchError ? (
+          <p className="status">No pudimos validar el pago automaticamente. Revisa el estado e intenta nuevamente.</p>
+        ) : null}
         <div className="cta-row">
-          <Link className="cta-link" href="/login">
-            Iniciar sesion
-          </Link>
+          {shouldShowLogin ? (
+            <Link className="cta-link" href="/login">
+              Iniciar sesion
+            </Link>
+          ) : null}
           <Link className="cta-link" href="/profile">
             Mi perfil
           </Link>

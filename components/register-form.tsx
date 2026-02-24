@@ -46,7 +46,7 @@ export function RegisterForm() {
         window.dispatchEvent(new Event('prode-auth-changed'));
       }
 
-      const prefRes = await fetch('/api/payments/mercadopago/preference', {
+      const prefRes = await fetch('/api/payments/galio/link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -55,9 +55,9 @@ export function RegisterForm() {
         throw new Error(prefData.error || 'No se pudo generar el pago');
       }
 
-      const redirectUrl = (prefData.sandboxInitPoint || prefData.initPoint) as string | undefined;
+      const redirectUrl = prefData.url as string | undefined;
       if (!redirectUrl) {
-        throw new Error('Mercado Pago no devolvio una URL de checkout');
+        throw new Error('GalioPay no devolvio una URL de checkout');
       }
 
       setPaymentUrl(redirectUrl);
