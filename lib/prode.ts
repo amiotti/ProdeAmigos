@@ -26,39 +26,40 @@ export function calculatePredictionPoints(
 
 export function computeLeaderboard(db: ProdeDB): LeaderboardRow[] {
   const matchById = new Map(db.matches.map((m) => [m.id, m]));
+  const rowsByUserId = new Map<string, LeaderboardRow>();
 
-  const rows = db.users.filter((u) => u.role !== 'admin').map<LeaderboardRow>((user) => {
-    const userPredictions = db.predictions.filter((p) => p.userId === user.id);
-
-    let totalPoints = 0;
-    let exactHits = 0;
-    let outcomeHits = 0;
-    let scoredPredictions = 0;
-
-    for (const prediction of userPredictions) {
-      const match = matchById.get(prediction.matchId);
-      if (!match || !match.officialResult) continue;
-
-      const result = calculatePredictionPoints(prediction, match.officialResult, db.pointsConfig);
-      totalPoints += result.points;
-      exactHits += result.exactHit ? 1 : 0;
-      outcomeHits += result.outcomeHit ? 1 : 0;
-      scoredPredictions += 1;
-    }
-
-    return {
+  for (const user of db.users) {
+    if (user.role === 'admin') continue;
+    rowsByUserId.set(user.id, {
       userId: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       userName: user.name,
       photoDataUrl: user.photoDataUrl ?? null,
-      totalPoints,
-      exactHits,
-      outcomeHits,
-      scoredPredictions,
-      totalPredictions: userPredictions.length,
-    };
-  });
+      totalPoints: 0,
+      exactHits: 0,
+      outcomeHits: 0,
+      scoredPredictions: 0,
+      totalPredictions: 0,
+    });
+  }
+
+  for (const prediction of db.predictions) {
+    const row = rowsByUserId.get(prediction.userId);
+    if (!row) continue;
+    row.totalPredictions += 1;
+
+    const match = matchById.get(prediction.matchId);
+    if (!match?.officialResult) continue;
+
+    const result = calculatePredictionPoints(prediction, match.officialResult, db.pointsConfig);
+    row.totalPoints += result.points;
+    row.exactHits += result.exactHit ? 1 : 0;
+    row.outcomeHits += result.outcomeHit ? 1 : 0;
+    row.scoredPredictions += 1;
+  }
+
+  const rows = [...rowsByUserId.values()];
 
   rows.sort((a, b) => {
     if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;

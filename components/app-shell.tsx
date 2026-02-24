@@ -22,6 +22,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
     { href: '/predictions', label: 'Predicciones' },
     { href: '/results', label: isAdmin ? 'Resultados Oficiales' : 'Resultados Oficiales' },
     { href: '/leaderboard', label: 'Tabla' },
+    { href: '/stats', label: 'Estadisticas' },
     ...(isAdmin ? [{ href: '/users', label: 'Usuarios' }] : []),
     ...(isLoggedIn ? [{ href: '/profile', label: 'Perfil' }] : []),
   ];

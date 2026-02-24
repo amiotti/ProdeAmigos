@@ -831,6 +831,168 @@ select:focus {
   margin: 0.2rem 0;
 }
 
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 0.9rem;
+}
+
+.chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.chart-grid-line {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.chart-axis-label {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chart-value-label {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chart-bar {
+  filter: drop-shadow(0 8px 12px rgba(34, 54, 96, 0.12));
+}
+
+.donut-wrap {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) 1fr;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.donut-svg {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  display: block;
+}
+
+.donut-track {
+  stroke: rgba(125, 143, 180, 0.18);
+}
+
+.donut-center-big {
+  fill: var(--text);
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.donut-center-small {
+  fill: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.donut-legend {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.line-chart-wrap {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.line-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.legend-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.45rem 0.6rem;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.legend-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-item strong {
+  font-size: 0.9rem;
+}
+
+.badge-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.badge-pill {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.35));
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.hbars {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.hbar-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1.1fr) 2fr auto;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.hbar-label {
+  display: grid;
+  line-height: 1.05;
+}
+
+.hbar-label span {
+  font-weight: 700;
+}
+
+.hbar-label small {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.hbar-track {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(125, 143, 180, 0.18);
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.hbar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #3850dd, #59e3d7, #f4be1f);
+}
+
+.hbar-value {
+  min-width: 2.2rem;
+  text-align: right;
+  font-weight: 800;
+}
+
 @media (max-width: 1000px) {
   .hero {
     grid-template-columns: 1fr;
@@ -850,6 +1012,15 @@ select:focus {
 
   .detail-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .donut-wrap {
+    grid-template-columns: 1fr;
+    justify-items: center;
   }
 
   .topbar-actions {
@@ -883,6 +1054,15 @@ select:focus {
 
   .detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .hbar-row {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .hbar-value {
+    text-align: left;
   }
 
   .session-badge {
@@ -1040,6 +1220,23 @@ html[data-theme='dark'] .team-chip {
 
 html[data-theme='dark'] .detail-card {
   background: rgba(255, 255, 255, 0.015);
+}
+
+html[data-theme='dark'] .chart-bar {
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.2));
+}
+
+html[data-theme='dark'] .donut-track,
+html[data-theme='dark'] .hbar-track {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme='dark'] .legend-item {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+html[data-theme='dark'] .badge-pill {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
 }
 
 

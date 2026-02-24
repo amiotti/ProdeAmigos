@@ -68,7 +68,7 @@ let coreStateCache:
       summary: StateResponse['summary'];
     }
   | null = null;
-const CORE_STATE_TTL_MS = 5_000;
+const CORE_STATE_TTL_MS = 30_000;
 
 function nowIso() {
   return new Date().toISOString();
@@ -175,6 +175,20 @@ async function queryUserByIdOnly(userId: string) {
   return (data.prode_users ?? [])[0] ?? null;
 }
 
+async function queryUserByEmailOnly(email: string) {
+  const db = getInstantAdminDb();
+  const data = (await db.query({
+    prode_users: { $: { where: { email } } },
+  })) as InstantQueryResult;
+  return (data.prode_users ?? [])[0] ?? null;
+}
+
+async function queryConfigOnly() {
+  const db = getInstantAdminDb();
+  const data = (await db.query({ prode_config: {} })) as InstantQueryResult;
+  return data.prode_config ?? [];
+}
+
 async function queryOfficialResultsOnly() {
   const db = getInstantAdminDb();
   const data = (await db.query({ prode_official_results: {} })) as InstantQueryResult;
@@ -237,8 +251,8 @@ async function ensureAdminUser() {
 
 async function ensureConfigDoc() {
   const seed = getSeedDbTemplate();
-  const docs = await queryAllInstant();
-  if (docs.config.some((c) => c.key === 'points')) return;
+  const configDocs = await queryConfigOnly();
+  if (configDocs.some((c) => c.key === 'points')) return;
   const ts = nowIso();
   const id = randomUUID();
   await getInstantAdminDb().transact([
@@ -383,8 +397,8 @@ export async function createUser(input: {
   validateRegistrationInput(input);
 
   const email = normalizeEmail(input.email);
-  const users = await queryUsersOnly();
-  if (users.some((u) => normalizeEmail(u.email) === email)) {
+  const existingUser = await queryUserByEmailOnly(email);
+  if (existingUser) {
     throw new Error('Ya existe un usuario con ese email');
   }
 
@@ -418,8 +432,7 @@ export async function createUser(input: {
 export async function loginUser(input: { email: string; password: string }): Promise<User> {
   await ensureBaseData();
   const email = normalizeEmail(input.email);
-  const users = await queryUsersOnly();
-  const found = users.find((u) => normalizeEmail(u.email) === email);
+  const found = await queryUserByEmailOnly(email);
   if (!found || !verifyPassword(input.password, found.passwordHash)) {
     throw new Error('Email o contraseña incorrectos');
   }
@@ -481,18 +494,19 @@ export async function savePredictions(
   items: Array<{ matchId: string; homeGoals: number; awayGoals: number }>,
 ) {
   await ensureBaseData();
-  const dbState = await readDb();
-  const user = dbState.users.find((u) => u.id === userId);
+  const userDoc = await queryUserByIdOnly(userId);
+  const user = userDoc ? publicUser(userDoc) : null;
   if (!user) throw new Error('Usuario no encontrado');
   if (user.role === 'admin') throw new Error('El administrador no puede cargar predicciones');
   if (user.registrationPaymentStatus !== 'approved') {
     throw new Error('Debes tener el pago de inscripción aprobado para cargar predicciones');
   }
 
-  const matchById = new Map(dbState.matches.map((m) => [m.id, m] as const));
-  const existing = await queryAllInstant();
+  const seed = getSeedDbTemplate();
+  const matchById = new Map(seed.matches.map((m) => [m.id, m] as const));
+  const existingUserPredictions = await queryPredictionsByUserOnly(userId);
   const existingByUserMatch = new Map(
-    existing.predictions.filter((p) => p.userId === userId).map((p) => [p.matchId, p] as const),
+    existingUserPredictions.map((p) => [p.matchId, p] as const),
   );
 
   const operations: any[] = [];
@@ -669,6 +683,27 @@ export async function getState(viewerToken?: string | null): Promise<StateRespon
       isAdmin: viewerUser?.role === 'admin',
     },
     summary: core.summary,
+  };
+}
+
+export async function getHomePageState() {
+  await ensureBaseData();
+  const core = await getCoreStateSnapshot();
+  return {
+    summary: core.summary,
+    groups: core.db.groups,
+    pointsConfig: core.db.pointsConfig,
+    matches: core.db.matches,
+    leaderboard: core.leaderboard,
+  };
+}
+
+export async function getLeaderboardPageState() {
+  await ensureBaseData();
+  const core = await getCoreStateSnapshot();
+  return {
+    leaderboard: core.leaderboard,
+    pointsConfig: core.db.pointsConfig,
   };
 }
 

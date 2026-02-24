@@ -1,10 +1,10 @@
 import { LeaderboardTable } from '@/components/leaderboard-table';
-import { getState } from '@/lib/db';
+import { getLeaderboardPageState } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export default async function LeaderboardPage() {
-  const state = await getState();
+  const state = await getLeaderboardPageState();
 
   return (
     <section className="stack-lg">

@@ -1,16 +1,16 @@
 import Link from 'next/link';
 
 import { TeamName } from '@/components/team-name';
-import { getState } from '@/lib/db';
+import { getHomePageState } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const state = await getState();
+  const state = await getHomePageState();
   const totalMatches = state.summary.matches;
   const resultsLoaded = state.summary.matchesWithOfficialResult;
   const loadProgressPct = totalMatches > 0 ? Math.round((resultsLoaded / totalMatches) * 100) : 0;
-  const nextMatch = [...state.db.matches]
+  const nextMatch = [...state.matches]
     .filter((m) => new Date(m.kickoffAt).getTime() > Date.now())
     .sort((a, b) => new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime())[0];
   const currentLeader = state.leaderboard[0] ?? null;
@@ -73,7 +73,7 @@ export default async function HomePage() {
             </div>
           </div>
           <p className="muted">
-            Puntaje actual: {state.db.pointsConfig.exactScore} puntos exacto / {state.db.pointsConfig.correctOutcome}{' '}
+            Puntaje actual: {state.pointsConfig.exactScore} puntos exacto / {state.pointsConfig.correctOutcome}{' '}
             punto por ganador o empate.
           </p>
           <div className="detail-grid">
@@ -107,7 +107,7 @@ export default async function HomePage() {
           hay ganador confirmado.
         </p>
         <div className="group-grid">
-          {state.db.groups.map((group) => (
+          {state.groups.map((group) => (
             <div key={group.id} className="group-card">
               <h4>{group.name}</h4>
               <ul>
