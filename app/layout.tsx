@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Noto_Sans, Oswald } from 'next/font/google';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
@@ -12,6 +12,12 @@ const titleFont = Oswald({ subsets: ['latin'], weight: ['500', '700'], variable:
 export const metadata: Metadata = {
   title: '🏆 PRODE Mundial 2026',
   description: 'Predicciones del mundial con registro, resultados y tabla de posiciones',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

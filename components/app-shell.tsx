@@ -2,8 +2,9 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import type { ReactNode } from 'react';
 
-import { ScrollTopButton } from '@/components/scroll-top-button';
+import { HeaderNav } from '@/components/header-nav';
 import { PageTransition } from '@/components/page-transition';
+import { ScrollTopButton } from '@/components/scroll-top-button';
 import { SessionBadge } from '@/components/session-badge';
 import { SessionIdleGuard } from '@/components/session-idle-guard';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -44,10 +45,10 @@ export async function AppShell({ children }: { children: ReactNode }) {
                 <h1 className="brand">Prode Amigos 2026</h1>
                 <p className="brand-subtitle">Predicciones, ranking y estadísticas del Mundial FIFA 2026</p>
               </div>
+              <ThemeToggle />
             </div>
 
             <div className="topbar-actions">
-              <ThemeToggle />
               <SessionBadge
                 initialData={{
                   ok: true,
@@ -59,19 +60,14 @@ export async function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
 
-          <nav className="nav">
-            {nav.map((item) => (
-              <Link key={item.href} href={item.href} className="nav-link">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <HeaderNav items={nav} />
         </header>
       ) : null}
 
       <main className="container">
         <PageTransition>{children}</PageTransition>
       </main>
+
       <SessionIdleGuard enabled={isLoggedIn} />
 
       <footer className="site-footer">
