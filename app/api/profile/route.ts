@@ -26,7 +26,6 @@ export async function PATCH(request: Request) {
       firstName?: string;
       lastName?: string;
       phone?: string;
-      photoDataUrl?: string | null;
       password?: string;
     };
 
@@ -34,7 +33,6 @@ export async function PATCH(request: Request) {
       firstName: body.firstName,
       lastName: body.lastName,
       phone: body.phone,
-      photoDataUrl: body.photoDataUrl,
       password: body.password,
     });
 
@@ -62,3 +60,5 @@ export async function DELETE() {
     return NextResponse.json({ ok: false, error: message }, { status: 400 });
   }
 }
+
+

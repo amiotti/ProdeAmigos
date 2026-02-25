@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 
@@ -33,10 +33,14 @@ export function ThemeToggle() {
   }
 
   return (
-    <button className="theme-toggle" type="button" onClick={toggleTheme} title="Cambiar tema">
-      <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
-      <span>{theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}</span>
+    <button
+      className="theme-toggle theme-toggle-icon-only"
+      type="button"
+      onClick={toggleTheme}
+      title={theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
+      aria-label={theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
+    >
+      <span aria-hidden="true">{theme === 'dark' ? '☀️' : '🌙'}</span>
     </button>
   );
 }
-

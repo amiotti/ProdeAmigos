@@ -22,22 +22,22 @@ export function LoginForm() {
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
-      if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo iniciar sesion');
-      setStatus(`Sesion iniciada: ${data.user.name}`);
+      if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo iniciar sesión');
+      setStatus(`Sesión iniciada: ${data.user.name}`);
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('prode-auth-changed'));
       }
-      router.push('/profile');
+      router.push('/inicio');
       router.refresh();
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Error al iniciar sesion');
+      setStatus(error instanceof Error ? error.message : 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <form className="panel form-grid" onSubmit={onSubmit}>
+    <form className="panel form-grid form-grid-login" onSubmit={onSubmit}>
       <label>
         Email
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -56,3 +56,7 @@ export function LoginForm() {
     </form>
   );
 }
+
+
+
+

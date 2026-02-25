@@ -11,3 +11,4 @@ export async function GET() {
   const state = await getPredictionsScreenState(token);
   return NextResponse.json(state);
 }
+

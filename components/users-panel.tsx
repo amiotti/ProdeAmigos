@@ -42,25 +42,21 @@ export function UsersPanel({ initialUsers }: { initialUsers: User[] }) {
         <table className="table">
           <thead>
             <tr>
-              <th>Foto</th>
+              <th>Usuario</th>
               <th>Nombre</th>
               <th>Email</th>
-              <th>Telefono</th>
+              <th>Teléfono</th>
               <th>Rol</th>
-              <th>Accion</th>
+              <th>Acción</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
               <tr key={user.id}>
                 <td>
-                  {user.photoDataUrl ? (
-                    <img className="avatar-preview avatar-preview-xs" src={user.photoDataUrl} alt={`Foto de ${user.name}`} />
-                  ) : (
-                    <span className="session-avatar session-avatar-fallback avatar-preview-xs" aria-hidden="true">
-                      {user.firstName?.[0] ?? user.name?.[0] ?? 'U'}
-                    </span>
-                  )}
+                  <span className="session-avatar session-avatar-fallback avatar-preview-xs" aria-hidden="true">
+                    {user.firstName?.[0] ?? user.name?.[0] ?? 'U'}
+                  </span>
                 </td>
                 <td>{user.name}</td>
                 <td>{user.email}</td>

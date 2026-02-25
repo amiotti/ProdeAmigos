@@ -16,7 +16,7 @@ export default async function UsersPage() {
       <section className="stack-lg">
         <div className="panel">
           <h2>Usuarios</h2>
-          <p className="muted">Debes iniciar sesion para acceder.</p>
+          <p className="muted">Debes iniciar sesión para acceder.</p>
           <div className="cta-row">
             <Link className="cta-link" href="/login">
               Ingresar
@@ -32,7 +32,7 @@ export default async function UsersPage() {
       <section className="stack-lg">
         <div className="panel">
           <h2>Usuarios</h2>
-          <p className="muted">Esta seccion es exclusiva para el administrador.</p>
+          <p className="muted">Esta sección es exclusiva para el administrador.</p>
         </div>
       </section>
     );
@@ -41,3 +41,6 @@ export default async function UsersPage() {
   const users = await listUsers();
   return <UsersPanel initialUsers={users} />;
 }
+
+
+

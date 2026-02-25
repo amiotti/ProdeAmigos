@@ -11,17 +11,17 @@ export default async function RulesPage() {
       <div className="panel">
         <h2>Reglas del PRODE</h2>
         <p className="muted">
-          Estas reglas explican como registrarse, cargar pronosticos y como se arma la tabla de posiciones en esta app.
+          Estas reglas explican cómo registrarse, cargar pronósticos y cómo se arma la tabla de posiciones en esta app.
         </p>
       </div>
 
       <div className="panel stack-md">
-        <h3>Como participar</h3>
+        <h3>Cómo participar</h3>
         <ol className="rules-list">
-          <li>Registrate en la pestaña `Registro` con nombre y email.</li>
-          <li>Entrá en `Predicciones`, elegí tu usuario y cargá resultados partido por partido.</li>
-          <li>Guardá tus pronosticos. Podés volver a editarlos mientras no quieras cerrarlos manualmente.</li>
-          <li>Cuando se cargan resultados oficiales, la tabla se recalcula automaticamente.</li>
+          <li>Registrate / iniciá sesión con tu cuenta.</li>
+          <li>Entrá en `Predicciones` y cargá resultados partido por partido.</li>
+          <li>Podés editar cada predicción hasta 1 hora antes del inicio de ese partido.</li>
+          <li>Cuando se cargan resultados oficiales, la tabla se recalcula automáticamente.</li>
         </ol>
       </div>
 
@@ -37,39 +37,52 @@ export default async function RulesPage() {
             <strong>{correctOutcome} punto{correctOutcome === 1 ? '' : 's'}</strong>
           </div>
           <div className="detail-card">
-            <span className="detail-label">Pronostico incorrecto</span>
+            <span className="detail-label">Acierto de goles (1 equipo)</span>
+            <strong>5 puntos</strong>
+          </div>
+          <div className="detail-card">
+            <span className="detail-label">Pronóstico incorrecto</span>
             <strong>0 puntos</strong>
           </div>
         </div>
         <p className="muted">
           “Acierto de signo” significa acertar ganador/empate/perdedor aunque no coincida el marcador exacto.
         </p>
+        <p className="muted">
+          Si acertás la cantidad de goles del local o del visitante (uno de los dos), sumás <strong>5 puntos</strong>.
+          Ese puntaje puede combinarse con el acierto de signo.
+        </p>
       </div>
 
       <div className="panel stack-md">
-        <h3>Ejemplos rapidos</h3>
+        <h3>Ejemplos rápidos</h3>
         <table className="table">
           <thead>
             <tr>
-              <th>Pronostico</th>
+              <th>Pronóstico</th>
               <th>Resultado oficial</th>
               <th>Puntaje</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Argentina 2 - 1 Mexico</td>
-              <td>Argentina 2 - 1 Mexico</td>
+              <td>Argentina 2 - 1 México</td>
+              <td>Argentina 2 - 1 México</td>
               <td>{exactScore} (exacto)</td>
             </tr>
             <tr>
-              <td>Argentina 1 - 0 Mexico</td>
-              <td>Argentina 3 - 1 Mexico</td>
-              <td>{correctOutcome} (mismo ganador)</td>
+              <td>Argentina 3 - 0 México</td>
+              <td>Argentina 2 - 0 México</td>
+              <td>{correctOutcome + 5} ({correctOutcome} por signo + 5 por goles visitante)</td>
             </tr>
             <tr>
-              <td>Argentina 1 - 1 Mexico</td>
-              <td>Argentina 2 - 1 Mexico</td>
+              <td>Argentina 1 - 1 México</td>
+              <td>Argentina 2 - 1 México</td>
+              <td>5 (acierto de goles visitante)</td>
+            </tr>
+            <tr>
+              <td>Argentina 0 - 2 México</td>
+              <td>Argentina 2 - 1 México</td>
               <td>0</td>
             </tr>
           </tbody>
@@ -83,7 +96,7 @@ export default async function RulesPage() {
           <li>Mayor puntaje total.</li>
           <li>Mayor cantidad de resultados exactos.</li>
           <li>Mayor cantidad de aciertos de signo.</li>
-          <li>Orden alfabetico por nombre.</li>
+          <li>Orden alfabético por nombre.</li>
         </ol>
       </div>
 
@@ -91,8 +104,8 @@ export default async function RulesPage() {
         <h3>Alcance actual</h3>
         <ul className="rules-bullets">
           <li>El calendario muestra el fixture completo del Mundial 2026.</li>
-          <li>Las probabilidades de la pestaña `Predicciones` son estimaciones internas de la app (no cuotas).</li>
-          <li>La carga de resultados oficiales se realiza desde la pestaña `Resultados Oficiales`.</li>
+          <li>Las probabilidades de `Predicciones` son estimaciones internas de la app (no cuotas).</li>
+          <li>La carga de resultados oficiales se realiza desde `Resultados Oficiales`.</li>
         </ul>
       </div>
     </section>

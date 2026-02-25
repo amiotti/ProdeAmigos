@@ -11,7 +11,6 @@ export async function POST(request: Request) {
       lastName?: string;
       email?: string;
       phone?: string;
-      photoDataUrl?: string | null;
       password?: string;
     };
 
@@ -20,7 +19,6 @@ export async function POST(request: Request) {
       lastName: body.lastName ?? '',
       email: body.email ?? '',
       phone: body.phone ?? '',
-      photoDataUrl: body.photoDataUrl ?? null,
       password: body.password ?? '',
     });
 
@@ -33,3 +31,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: message }, { status: 400 });
   }
 }
+
+

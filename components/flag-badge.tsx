@@ -15,3 +15,4 @@ export function FlagBadge({ teamName, size = 'sm' }: FlagBadgeProps) {
     </span>
   );
 }
+

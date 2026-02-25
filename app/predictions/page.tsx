@@ -15,11 +15,12 @@ export default async function PredictionsPage() {
       <div className="panel">
         <h2>Predicciones por partido</h2>
         <p className="muted">
-          Inicia sesion para cargar tus pronosticos. Una vez guardada una prediccion, ese partido queda bloqueado y no
-          puede modificarse.
+          Inicia sesión para cargar tus pronósticos. Cada partido puede editarse hasta 1 hora antes de su inicio.
+          Los horarios se muestran en hora de Argentina.
         </p>
       </div>
       <PredictionsBoard initialState={state} />
     </section>
   );
 }
+

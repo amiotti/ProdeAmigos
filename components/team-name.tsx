@@ -22,3 +22,4 @@ export function TeamName({ teamName, linkToTeam = false, className }: TeamNamePr
 
   return <Link href={`/teams/${info.slug}`}>{label}</Link>;
 }
+

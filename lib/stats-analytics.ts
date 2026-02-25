@@ -1,3 +1,4 @@
+import { formatDateArgentinaShort } from '@/lib/datetime';
 import { calculatePredictionPoints } from '@/lib/prode';
 import type { Prediction, ProdeDB, StateResponse } from '@/lib/types';
 
@@ -40,10 +41,6 @@ function cacheKey(state: StateResponse) {
   ].join('|');
 }
 
-function formatDateShort(iso: string) {
-  const d = new Date(iso);
-  return `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
-}
 
 function scoreOutcome(pred: { homeGoals: number; awayGoals: number }) {
   if (pred.homeGoals > pred.awayGoals) return 'home' as const;
@@ -170,7 +167,7 @@ export function getStatsAnalytics(state: StateResponse): StatsAnalyticsSnapshot 
     predictionPatternFrequency,
     nextMatchId: nextMatch?.id ?? null,
     nextMatchDist,
-    cumulativeLabels: scoredMatches.map((m, i) => `${formatDateShort(m.kickoffAt)} · M${i + 1}`),
+    cumulativeLabels: scoredMatches.map((m, i) => `${formatDateArgentinaShort(m.kickoffAt)} · M${i + 1}`),
     cumulativeByUser,
   };
 
@@ -181,4 +178,7 @@ export function getStatsAnalytics(state: StateResponse): StatsAnalyticsSnapshot 
   };
   return snapshot;
 }
+
+
+
 

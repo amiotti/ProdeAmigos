@@ -1,6 +1,7 @@
+﻿import { TeamName } from '@/components/team-name';
 import { getState } from '@/lib/db';
+import { formatDateTimeArgentina } from '@/lib/datetime';
 import { buildCalendarFixtures, hasKnownTeam } from '@/lib/worldcup26';
-import { TeamName } from '@/components/team-name';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,8 +14,8 @@ export default async function CalendarPage() {
       <div className="panel">
         <h2>Calendario</h2>
         <p className="muted">
-          Fixture oficial cargado desde publicación web con fechas GMT y sedes. La fase final mantiene etiquetas de
-          cruce hasta que se definan los clasificados.
+          Fixture oficial cargado desde publicación web con fechas y sedes. Los horarios se muestran en hora de
+          Argentina (UTC-3). La fase final mantiene etiquetas de cruce hasta que se definan los clasificados.
         </p>
       </div>
 
@@ -33,19 +34,11 @@ export default async function CalendarPage() {
           <tbody>
             {fixtures.map((fixture) => (
               <tr key={fixture.id}>
-                <td>{fixture.id}</td>
-                <td>{fixture.stage}</td>
                 <td>
-                  {new Date(fixture.date).toLocaleString('es-AR', {
-                    weekday: 'short',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    timeZoneName: 'short',
-                  })}
+                  <span className="match-code-nowrap">{fixture.id}</span>
                 </td>
+                <td>{fixture.stage}</td>
+                <td>{formatDateTimeArgentina(fixture.date)}</td>
                 <td>
                   {fixture.awayTeam && hasKnownTeam(fixture.homeTeam) ? (
                     <TeamName teamName={fixture.homeTeam} linkToTeam />

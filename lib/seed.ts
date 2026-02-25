@@ -47,8 +47,8 @@ export function createSeedDb(): ProdeDB {
   return {
     version: 3,
     pointsConfig: {
-      exactScore: 3,
-      correctOutcome: 1,
+      exactScore: 20,
+      correctOutcome: 10,
     },
     groups,
     matches,
@@ -57,3 +57,4 @@ export function createSeedDb(): ProdeDB {
     updatedAt: now,
   };
 }
+

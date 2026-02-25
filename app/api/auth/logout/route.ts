@@ -7,3 +7,4 @@ export async function POST() {
   cookies().delete(getSessionCookieName());
   return NextResponse.json({ ok: true });
 }
+

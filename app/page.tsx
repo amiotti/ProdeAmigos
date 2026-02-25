@@ -1,124 +1,68 @@
 import Link from 'next/link';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
-import { TeamName } from '@/components/team-name';
-import { getHomePageState } from '@/lib/db';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { getSessionCookieName, verifySession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HomePage() {
-  const state = await getHomePageState();
-  const totalMatches = state.summary.matches;
-  const resultsLoaded = state.summary.matchesWithOfficialResult;
-  const loadProgressPct = totalMatches > 0 ? Math.round((resultsLoaded / totalMatches) * 100) : 0;
-  const nextMatch = [...state.matches]
-    .filter((m) => new Date(m.kickoffAt).getTime() > Date.now())
-    .sort((a, b) => new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime())[0];
-  const currentLeader = state.leaderboard[0] ?? null;
+export default function LandingPage() {
+  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  if (verifySession(token)) {
+    redirect('/inicio');
+  }
 
   return (
-    <section className="stack-lg">
-      <div className="hero">
-        <div className="panel">
-          <p className="eyebrow hero-kicker">FIFA WORLD CUP 26</p>
-          <h2 className="hero-title">PRODE Mundial 2026</h2>
-          <p className="muted">
-            Registro de participantes, predicciones por partido, resultados oficiales y tabla de posiciones para el
-            torneo de 48 selecciones. Habra importantes premios para el Top 5 del PRODE una vez finalizada la fase de
-            grupos.
+    <section className="landing-screen">
+      <div className="public-theme-toggle"><ThemeToggle /></div>
+      <div className="landing-backdrop" aria-hidden="true" />
+      <div className="landing-orb landing-orb-a" aria-hidden="true" />
+      <div className="landing-orb landing-orb-b" aria-hidden="true" />
+      <div className="landing-grid">
+        <div className="landing-panel landing-main">
+          <p className="landing-kicker">PRODE MUNDIAL FIFA 2026</p>
+          <h2 className="landing-title">
+            Jugá el <span>PRODE</span> con tu grupo
+          </h2>
+          <p className="landing-copy">
+            Registrate, pagá tu inscripción y cargá pronósticos partido por partido. El ranking se actualiza
+            automáticamente cuando se cargan los resultados oficiales.
           </p>
-          <div className="panel prizes-panel">
-            <h3>Premios Top 5</h3>
-            <ol className="rules-list">
-              <li>1° Premio: $2000000</li>
-              <li>2° Premio: $500000</li>
-              <li>3° Premio: Cena para 2 personas en La Canti</li>
-              <li>4° Premio: Una OC para Mercadito Gala por $50000</li>
-              <li>5° Premio: Una remera de Perfil</li>
-            </ol>
+          <div className="landing-cta-row">
+            <Link className="landing-cta-primary" href="/login">
+              Iniciar sesión / Registrarse
+            </Link>
+            <Link className="landing-cta-secondary" href="/leaderboard">
+              Ver tabla pública
+            </Link>
           </div>
-          <div className="cta-row">
-            <Link href="/register" className="cta-link">
-              Registrar usuario
-            </Link>
-            <Link href="/predictions" className="cta-link">
-              Cargar predicciones
-            </Link>
-            <Link href="/leaderboard" className="cta-link">
-              Ver tabla
-            </Link>
-            <Link href="/calendar" className="cta-link">
-              Ver calendario
-            </Link>
+          <div className="landing-badges">
+            <span className="landing-badge">Fixture completo</span>
+            <span className="landing-badge">Predicciones por grupo</span>
+            <span className="landing-badge">Estadísticas</span>
+            <span className="landing-badge">Ranking en vivo</span>
           </div>
         </div>
 
-        <div className="panel stack-md">
-          <h3>Resumen</h3>
-          <div className="cards cards-summary">
-            <div className="stat-card">
-              <div className="muted">Usuarios</div>
-              <div className="value">{state.summary.users}</div>
+        <div className="landing-panel landing-side">
+          <div className="landing-card-stack">
+            <div className="landing-mini-card">
+              <span className="landing-mini-label">Top 5 premios</span>
+              <strong>$2.000.000 / $500.000</strong>
+              <small>y premios especiales</small>
             </div>
-            <div className="stat-card">
-              <div className="muted">Resultados Cargados</div>
-              <div className="value">{state.summary.matchesWithOfficialResult}</div>
+            <div className="landing-mini-card">
+              <span className="landing-mini-label">Modo de juego</span>
+              <strong>Predicción editable</strong>
+              <small>hasta 1 hora antes del partido</small>
             </div>
-            <div className="stat-card">
-              <div className="muted">Predicciones Totales</div>
-              <div className="value">{state.summary.predictions}</div>
-            </div>
-            <div className="stat-card">
-              <div className="muted">Avance Resultados</div>
-              <div className="value">{loadProgressPct}%</div>
+            <div className="landing-mini-card">
+              <span className="landing-mini-label">Resultados</span>
+              <strong>Oficiales + tablas</strong>
+              <small>por grupo y ranking general</small>
             </div>
           </div>
-          <p className="muted">
-            Puntaje actual: {state.pointsConfig.exactScore} puntos exacto / {state.pointsConfig.correctOutcome}{' '}
-            punto por ganador o empate.
-          </p>
-          <div className="detail-grid">
-            <div className="detail-card">
-              <span className="detail-label">Partidos del torneo</span>
-              <strong>{totalMatches}</strong>
-              <span className="muted compact-text">Fixture completo del Mundial 2026 cargado en calendario.</span>
-            </div>
-            <div className="detail-card">
-              <span className="detail-label">Lider provisional</span>
-              <strong>{currentLeader ? `${currentLeader.firstName} ${currentLeader.lastName}` : 'Sin datos aun'}</strong>
-              <span className="muted compact-text">
-                {currentLeader ? `${currentLeader.totalPoints} pts` : 'Se actualiza al cargar resultados oficiales'}
-              </span>
-            </div>
-            <div className="detail-card">
-              <span className="detail-label">Proximo partido</span>
-              <strong>{nextMatch ? `${nextMatch.homeTeam} vs ${nextMatch.awayTeam}` : 'Sin partidos pendientes'}</strong>
-              <span className="muted compact-text">
-                {nextMatch ? new Date(nextMatch.kickoffAt).toUTCString() : 'El fixture no tiene fechas futuras'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="panel stack-md">
-        <h3>Grupos (zonas) y equipos</h3>
-        <p className="muted">
-          Grupos cargados con selecciones definidas tras el sorteo, incluyendo plazas de repechaje donde todavia no
-          hay ganador confirmado.
-        </p>
-        <div className="group-grid">
-          {state.groups.map((group) => (
-            <div key={group.id} className="group-card">
-              <h4>{group.name}</h4>
-              <ul>
-                {group.teams.map((team) => (
-                  <li key={team}>
-                    <TeamName teamName={team} linkToTeam />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
         </div>
       </div>
     </section>

@@ -3,8 +3,9 @@ import { notFound } from 'next/navigation';
 import { FlagBadge } from '@/components/flag-badge';
 import { TeamName } from '@/components/team-name';
 import { getState } from '@/lib/db';
+import { formatDateTimeArgentina } from '@/lib/datetime';
 import { getTeamWikipediaSummary } from '@/lib/wikipedia';
-import { buildTeamProdeSummary, buildTeamSportFacts, getAllTeams } from '@/lib/worldcup26';
+import { buildTeamProdeSummary, buildTeamSportFacts, getAllTeams, getFifaTeamNewsUrl } from '@/lib/worldcup26';
 
 type TeamDetailPageProps = {
   params: {
@@ -28,6 +29,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
   const wiki = await getTeamWikipediaSummary(team.name);
   const profileSummary = buildTeamProdeSummary(team.name, group?.id);
   const sportFacts = buildTeamSportFacts(team.name, group?.teams);
+  const teamNewsUrl = getFifaTeamNewsUrl(team.name);
 
   return (
     <section className="stack-lg">
@@ -47,7 +49,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
 
         <div className="detail-grid">
           <div className="detail-card">
-            <span className="detail-label">Indice de fuerza (app)</span>
+            <span className="detail-label">Índice de fuerza (app)</span>
             <strong>{team.fifaStrength}</strong>
           </div>
           <div className="detail-card">
@@ -71,8 +73,8 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             </strong>
           </div>
           <div className="detail-card">
-            <span className="detail-label">Condicion deportiva</span>
-            <strong>{team.isPlaceholder ? 'Pendiente de definicion' : 'Seleccion confirmada'}</strong>
+            <span className="detail-label">Condición deportiva</span>
+            <strong>{team.isPlaceholder ? 'Pendiente de definición' : 'Selección confirmada'}</strong>
           </div>
           <div className="detail-card">
             <span className="detail-label">Objetivo estimado</span>
@@ -92,18 +94,39 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
       </div>
 
       <div className="panel stack-md">
-        <h3>Resumen enciclopedico (secundario)</h3>
+        <h3>Resumen enciclopédico (secundario)</h3>
         {wiki ? (
           <>
             <p className="muted">{wiki.extract}</p>
             <p className="muted">
-              Fuente enciclopedica: <a className="inline-link" href={wiki.pageUrl} target="_blank" rel="noreferrer">Wikipedia</a>
+              Fuente enciclopédica:{' '}
+              <a className="inline-link" href={wiki.pageUrl} target="_blank" rel="noreferrer">
+                Wikipedia
+              </a>
             </p>
           </>
         ) : (
           <p className="muted">
-            No se pudo cargar un resumen enciclopedico en este momento. Se muestra igualmente la informacion del
+            No se pudo cargar un resumen enciclopédico en este momento. Se muestra igualmente la información del
             torneo y del PRODE.
+          </p>
+        )}
+      </div>
+
+      <div className="panel stack-md">
+        <h3>Noticias</h3>
+        {teamNewsUrl ? (
+          <p className="muted">
+            Podes seguir las ultimas noticias de este equipo{' '}
+            <a className="inline-link" href={teamNewsUrl} target="_blank" rel="noreferrer">
+              aqui
+            </a>
+            .
+          </p>
+        ) : (
+          <p className="muted">
+            Esta seleccion aun no tiene una pagina oficial de noticias disponible porque su cupo todavia no esta
+            definido.
           </p>
         )}
       </div>
@@ -125,33 +148,28 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
               <th>Partido</th>
               <th>Fecha</th>
               <th>Sede</th>
-              <th>Fixture</th>
+              <th className="fixture-col-header">Fixture</th>
               <th>Resultado oficial</th>
             </tr>
           </thead>
           <tbody>
             {teamMatches.map((match) => (
               <tr key={match.id}>
-                <td>{match.id}</td>
-                <td>
-                  {new Date(match.kickoffAt).toLocaleString('es-AR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </td>
+                <td className="match-code-nowrap">{match.id}</td>
+                <td>{formatDateTimeArgentina(match.kickoffAt)}</td>
                 <td>{match.venue ?? '-'}</td>
-                <td>
-                  <span className="fixture-inline">
-                    <TeamName teamName={match.homeTeam} linkToTeam /> <span className="vs">vs</span>{' '}
-                    <TeamName teamName={match.awayTeam} linkToTeam />
+                <td className="fixture-col-cell">
+                  <span className="fixture-inline fixture-inline-table">
+                    <span className="fixture-home">
+                      <TeamName teamName={match.homeTeam} linkToTeam />
+                    </span>
+                    <span className="vs">vs</span>
+                    <span className="fixture-away">
+                      <TeamName teamName={match.awayTeam} linkToTeam />
+                    </span>
                   </span>
                 </td>
-                <td>
-                  {match.officialResult ? `${match.officialResult.home} - ${match.officialResult.away}` : '-'}
-                </td>
+                <td>{match.officialResult ? `${match.officialResult.home} - ${match.officialResult.away}` : '-'}</td>
               </tr>
             ))}
           </tbody>

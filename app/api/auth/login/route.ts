@@ -12,7 +12,9 @@ export async function POST(request: Request) {
     cookies().set(getSessionCookieName(), token, getSessionCookieOptions());
     return NextResponse.json({ ok: true, user });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'No se pudo iniciar sesion';
+    const message = error instanceof Error ? error.message : 'No se pudo iniciar sesión';
     return NextResponse.json({ ok: false, error: message }, { status: 401 });
   }
 }
+
+

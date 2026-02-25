@@ -1,14 +1,18 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-import { getSessionCookieName } from '@/lib/auth';
+import { getSessionCookieName, getSessionCookieOptions, signSession } from '@/lib/auth';
 import { getUserFromSessionToken } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const cookieStore = cookies();
+  const token = cookieStore.get(getSessionCookieName())?.value ?? null;
   const user = await getUserFromSessionToken(token);
+  if (user) {
+    cookieStore.set(getSessionCookieName(), signSession({ userId: user.id, role: user.role }), getSessionCookieOptions());
+  }
   return NextResponse.json({
     ok: true,
     isAuthenticated: Boolean(user),
@@ -20,3 +24,4 @@ export async function GET() {
     },
   });
 }
+

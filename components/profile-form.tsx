@@ -10,18 +10,11 @@ export function ProfileForm({ user }: { user: User }) {
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
   const [phone, setPhone] = useState(user.phone);
-  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(user.photoDataUrl ?? null);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
-
-  function onPhotoChange(file: File | null) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setPhotoDataUrl(typeof reader.result === 'string' ? reader.result : null);
-    reader.readAsDataURL(file);
-  }
+  const [editing, setEditing] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,12 +25,16 @@ export function ProfileForm({ user }: { user: User }) {
       const response = await fetch('/api/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, lastName, phone, photoDataUrl, password: password || undefined }),
+        body: JSON.stringify({ firstName, lastName, phone, password: password || undefined }),
       });
       const data = await response.json();
       if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo actualizar el perfil');
       setPassword('');
       setStatus('Perfil actualizado');
+      setEditing(false);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('prode-auth-changed'));
+      }
       router.refresh();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Error al actualizar');
@@ -51,6 +48,9 @@ export function ProfileForm({ user }: { user: User }) {
     setStatus(null);
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('prode-auth-changed'));
+      }
       router.push('/login');
       router.refresh();
     } finally {
@@ -60,53 +60,87 @@ export function ProfileForm({ user }: { user: User }) {
 
   return (
     <section className="stack-lg">
-      <form className="panel form-grid" onSubmit={onSubmit}>
-        {photoDataUrl ? <img className="avatar-preview avatar-preview-lg" src={photoDataUrl} alt={`Foto de ${user.name}`} /> : null}
-        <label>
-          Nombre
-          <input value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-        </label>
-        <label>
-          Apellido
-          <input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-        </label>
-        <label>
-          Email
-          <input value={user.email} disabled />
-        </label>
-        <label>
-          Telefono
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} required />
-        </label>
-        <label>
-          Foto de perfil (opcional)
-          <input type="file" accept="image/*" onChange={(e) => onPhotoChange(e.target.files?.[0] ?? null)} />
-        </label>
-        <div className="cta-row">
-          <button type="button" className="cta-link" onClick={() => setPhotoDataUrl(null)}>
-            Quitar foto
+      <div className="panel stack-md">
+        <div className="section-head">
+          <h3>Datos de registro</h3>
+          <button className="btn btn-small" type="button" onClick={() => setEditing((prev) => !prev)}>
+            {editing ? 'Cancelar edición' : 'Editar perfil'}
           </button>
         </div>
-        <label>
-          Nueva contraseña (opcional)
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={6}
-            placeholder="Dejar vacio para no cambiar"
-          />
-        </label>
+
+        <div className="detail-grid">
+          <div className="detail-card">
+            <span className="detail-label">Nombre</span>
+            <strong>{user.firstName}</strong>
+          </div>
+          <div className="detail-card">
+            <span className="detail-label">Apellido</span>
+            <strong>{user.lastName}</strong>
+          </div>
+          <div className="detail-card">
+            <span className="detail-label">Email</span>
+            <strong>{user.email}</strong>
+          </div>
+          <div className="detail-card">
+            <span className="detail-label">Teléfono</span>
+            <strong>{user.phone}</strong>
+          </div>
+          <div className="detail-card">
+            <span className="detail-label">Rol</span>
+            <strong>{user.role === 'admin' ? 'Administrador' : 'Usuario'}</strong>
+          </div>
+          <div className="detail-card">
+            <span className="detail-label">Estado inscripción</span>
+            <strong>{user.registrationPaymentStatus ?? 'pending'}</strong>
+          </div>
+        </div>
+
         <div className="cta-row">
-          <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? 'Guardando...' : 'Guardar perfil'}
-          </button>
           <button className="btn btn-danger" type="button" onClick={logout} disabled={loggingOut}>
-            {loggingOut ? 'Saliendo...' : 'Cerrar sesion'}
+            {loggingOut ? 'Saliendo...' : 'Cerrar sesión'}
           </button>
         </div>
         {status ? <p className="status">{status}</p> : null}
-      </form>
+      </div>
+
+      {editing ? (
+        <form className="panel form-grid" onSubmit={onSubmit}>
+          <label>
+            Nombre
+            <input value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+          </label>
+          <label>
+            Apellido
+            <input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+          </label>
+          <label>
+            Email
+            <input value={user.email} disabled />
+          </label>
+          <label>
+            Teléfono
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} required />
+          </label>
+          <label>
+            Nueva contraseña (opcional)
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              placeholder="Dejar vacío para no cambiar"
+            />
+          </label>
+          <div className="cta-row">
+            <button className="btn btn-primary" type="submit" disabled={loading}>
+              {loading ? 'Guardando...' : 'Guardar perfil'}
+            </button>
+            <button className="btn" type="button" onClick={() => setEditing(false)} disabled={loading}>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      ) : null}
     </section>
   );
 }

@@ -15,23 +15,20 @@ type InstantUserDoc = {
   name: string;
   email: string;
   phone: string;
-  photoDataUrl?: string | null;
   registrationPaymentStatus?: 'pending' | 'approved' | 'failed';
   registrationPaymentApprovedAt?: string | null;
+  registrationPaymentReceipt?: string | null;
   role: UserRole;
   passwordHash: string;
   createdAt: string;
   updatedAt: string;
 };
 
-type InstantPredictionDoc = {
+type InstantUserPredictionsDoc = {
   id: string;
   userId: string;
-  matchId: string;
-  homeGoals: number;
-  awayGoals: number;
+  predictions: Record<string, { homeGoals: number; awayGoals: number; updatedAt: string }>;
   updatedAt: string;
-  lockedAt: string;
 };
 
 type InstantOfficialResultDoc = {
@@ -52,7 +49,7 @@ type InstantConfigDoc = {
 
 type InstantQueryResult = {
   prode_users?: InstantUserDoc[];
-  prode_predictions?: InstantPredictionDoc[];
+  prode_user_predictions?: InstantUserPredictionsDoc[];
   prode_official_results?: InstantOfficialResultDoc[];
   prode_config?: InstantConfigDoc[];
 };
@@ -60,6 +57,7 @@ type InstantQueryResult = {
 let seedDbCache: ProdeDB | null = null;
 let ensureBaseDataInFlight: Promise<void> | null = null;
 let ensureBaseDataLastRunAt = 0;
+let legacyPredictionsCleanupAttempted = false;
 let coreStateCache:
   | {
       expiresAt: number;
@@ -115,9 +113,9 @@ function publicUser(doc: InstantUserDoc): User {
     firstName: doc.firstName,
     lastName: doc.lastName,
     phone: doc.phone,
-    photoDataUrl: doc.photoDataUrl ?? null,
     registrationPaymentStatus: doc.registrationPaymentStatus ?? (doc.role === 'admin' ? 'approved' : 'pending'),
     registrationPaymentApprovedAt: doc.registrationPaymentApprovedAt ?? null,
+    registrationPaymentReceipt: doc.registrationPaymentReceipt ?? null,
     name: doc.name,
     email: doc.email,
     role: doc.role,
@@ -135,13 +133,12 @@ function validateRegistrationInput(input: {
   lastName: string;
   email: string;
   phone: string;
-  photoDataUrl?: string | null;
   password: string;
 }) {
   if (!input.firstName.trim()) throw new Error('El nombre es obligatorio');
   if (!input.lastName.trim()) throw new Error('El apellido es obligatorio');
   if (!input.email.trim()) throw new Error('El email es obligatorio');
-  if (!input.phone.trim()) throw new Error('El telefono es obligatorio');
+  if (!input.phone.trim()) throw new Error('El teléfono es obligatorio');
   if (!input.password || input.password.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres');
 }
 
@@ -149,13 +146,13 @@ async function queryAllInstant() {
   const db = getInstantAdminDb();
   const data = (await db.query({
     prode_users: {},
-    prode_predictions: {},
+    prode_user_predictions: {},
     prode_official_results: {},
     prode_config: {},
   })) as InstantQueryResult;
   return {
     users: data.prode_users ?? [],
-    predictions: data.prode_predictions ?? [],
+    userPredictions: data.prode_user_predictions ?? [],
     officialResults: data.prode_official_results ?? [],
     config: data.prode_config ?? [],
   };
@@ -195,12 +192,12 @@ async function queryOfficialResultsOnly() {
   return data.prode_official_results ?? [];
 }
 
-async function queryPredictionsByUserOnly(userId: string) {
+async function queryUserPredictionsDocByUserOnly(userId: string) {
   const db = getInstantAdminDb();
   const data = (await db.query({
-    prode_predictions: { $: { where: { userId } } },
+    prode_user_predictions: { $: { where: { userId } } },
   })) as InstantQueryResult;
-  return data.prode_predictions ?? [];
+  return (data.prode_user_predictions ?? [])[0] ?? null;
 }
 
 async function ensureAdminUser() {
@@ -252,7 +249,24 @@ async function ensureAdminUser() {
 async function ensureConfigDoc() {
   const seed = getSeedDbTemplate();
   const configDocs = await queryConfigOnly();
-  if (configDocs.some((c) => c.key === 'points')) return;
+  const pointsDoc = configDocs.find((c) => c.key === 'points');
+  if (pointsDoc) {
+    if (
+      pointsDoc.exactScore !== seed.pointsConfig.exactScore ||
+      pointsDoc.correctOutcome !== seed.pointsConfig.correctOutcome
+    ) {
+      const ts = nowIso();
+      await getInstantAdminDb().transact([
+        tx.prode_config[pointsDoc.id].update({
+          exactScore: seed.pointsConfig.exactScore,
+          correctOutcome: seed.pointsConfig.correctOutcome,
+          updatedAt: ts,
+        }),
+      ]);
+      invalidateCoreStateCache();
+    }
+    return;
+  }
   const ts = nowIso();
   const id = randomUUID();
   await getInstantAdminDb().transact([
@@ -267,6 +281,64 @@ async function ensureConfigDoc() {
   invalidateCoreStateCache();
 }
 
+async function cleanupLegacyPredictions() {
+  if (legacyPredictionsCleanupAttempted) return;
+  legacyPredictionsCleanupAttempted = true;
+  const db = getInstantAdminDb();
+  const data = (await db.query({
+    prode_predictions: {},
+    prode_user_predictions: {},
+  })) as {
+    prode_predictions?: Array<{
+      id: string;
+      userId: string;
+      matchId: string;
+      homeGoals: number;
+      awayGoals: number;
+      updatedAt: string;
+    }>;
+    prode_user_predictions?: InstantUserPredictionsDoc[];
+  };
+  const legacy = data.prode_predictions ?? [];
+  if (legacy.length === 0) return;
+  const existingUserIds = new Set((data.prode_user_predictions ?? []).map((doc) => doc.userId));
+  const predictionsByUser = new Map<
+    string,
+    Record<string, { homeGoals: number; awayGoals: number; updatedAt: string }>
+  >();
+  for (const p of legacy) {
+    const map = predictionsByUser.get(p.userId) ?? {};
+    map[p.matchId] = {
+      homeGoals: p.homeGoals,
+      awayGoals: p.awayGoals,
+      updatedAt: p.updatedAt,
+    };
+    predictionsByUser.set(p.userId, map);
+  }
+
+  const operations: any[] = [];
+  for (const [userId, predictions] of predictionsByUser) {
+    if (existingUserIds.has(userId)) continue;
+    const id = randomUUID();
+    operations.push(
+      tx.prode_user_predictions[id].update({
+        id,
+        userId,
+        predictions,
+        updatedAt: nowIso(),
+      }),
+    );
+  }
+
+  for (const doc of legacy) {
+    operations.push(tx.prode_predictions[doc.id].delete());
+  }
+
+  if (operations.length > 0) {
+    await db.transact(operations);
+  }
+}
+
 async function ensureBaseData() {
   const now = Date.now();
   if (now - ensureBaseDataLastRunAt < 15_000) return;
@@ -275,6 +347,7 @@ async function ensureBaseData() {
   ensureBaseDataInFlight = (async () => {
     await ensureAdminUser();
     await ensureConfigDoc();
+    await cleanupLegacyPredictions();
     ensureBaseDataLastRunAt = Date.now();
   })().finally(() => {
     ensureBaseDataInFlight = null;
@@ -290,14 +363,19 @@ function buildStateFromInstantData(data: Awaited<ReturnType<typeof queryAllInsta
     .map(publicUser)
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
 
-  const predictions: Prediction[] = data.predictions.map((p) => ({
-    id: p.id,
-    userId: p.userId,
-    matchId: p.matchId,
-    homeGoals: p.homeGoals,
-    awayGoals: p.awayGoals,
-    updatedAt: p.updatedAt,
-  }));
+  const predictions: Prediction[] = [];
+  for (const doc of data.userPredictions) {
+    for (const [matchId, entry] of Object.entries(doc.predictions ?? {})) {
+      predictions.push({
+        id: `${doc.id}:${matchId}`,
+        userId: doc.userId,
+        matchId,
+        homeGoals: entry.homeGoals,
+        awayGoals: entry.awayGoals,
+        updatedAt: entry.updatedAt,
+      });
+    }
+  }
 
   const officialByMatchId = new Map(data.officialResults.map((r) => [r.matchId, r] as const));
 
@@ -390,7 +468,6 @@ export async function createUser(input: {
   lastName: string;
   email: string;
   phone: string;
-  photoDataUrl?: string | null;
   password: string;
 }): Promise<User> {
   await ensureBaseData();
@@ -415,9 +492,9 @@ export async function createUser(input: {
     name: `${firstName} ${lastName}`.trim(),
     email,
     phone,
-    photoDataUrl: input.photoDataUrl ?? null,
     registrationPaymentStatus: 'pending',
     registrationPaymentApprovedAt: null,
+    registrationPaymentReceipt: null,
     role: 'user',
     passwordHash: hashPassword(input.password),
     createdAt: ts,
@@ -456,7 +533,7 @@ export async function getUserFromSessionToken(token: string | undefined | null):
 
 export async function updateUserProfile(
   userId: string,
-  input: { firstName?: string; lastName?: string; phone?: string; photoDataUrl?: string | null; password?: string },
+  input: { firstName?: string; lastName?: string; phone?: string; password?: string },
 ): Promise<User> {
   await ensureBaseData();
   const users = await queryUsersOnly();
@@ -468,13 +545,12 @@ export async function updateUserProfile(
   const phone = sanitizePhone(input.phone ?? current.phone);
   if (!firstName) throw new Error('El nombre es obligatorio');
   if (!lastName) throw new Error('El apellido es obligatorio');
-  if (!phone) throw new Error('El telefono es obligatorio');
+  if (!phone) throw new Error('El teléfono es obligatorio');
 
   const patch: Partial<InstantUserDoc> = {
     firstName,
     lastName,
     phone,
-    photoDataUrl: input.photoDataUrl === undefined ? current.photoDataUrl ?? null : input.photoDataUrl,
     name: `${firstName} ${lastName}`.trim(),
     updatedAt: nowIso(),
   };
@@ -504,15 +580,15 @@ export async function savePredictions(
 
   const seed = getSeedDbTemplate();
   const matchById = new Map(seed.matches.map((m) => [m.id, m] as const));
-  const existingUserPredictions = await queryPredictionsByUserOnly(userId);
-  const existingByUserMatch = new Map(
-    existingUserPredictions.map((p) => [p.matchId, p] as const),
-  );
+  const existingUserPredictionsDoc = await queryUserPredictionsDocByUserOnly(userId);
+  const predictionsMap: Record<string, { homeGoals: number; awayGoals: number; updatedAt: string }> = {
+    ...(existingUserPredictionsDoc?.predictions ?? {}),
+  };
 
-  const operations: any[] = [];
   const lockedMatches: string[] = [];
   const ts = nowIso();
   const nowMs = Date.now();
+  let changed = false;
 
   for (const item of items) {
     const match = matchById.get(item.matchId);
@@ -524,44 +600,24 @@ export async function savePredictions(
       lockedMatches.push(item.matchId);
       continue;
     }
-
-    const existingPrediction = existingByUserMatch.get(item.matchId);
-    if (existingPrediction) {
-      operations.push(
-        tx.prode_predictions[existingPrediction.id].update({
-          homeGoals: item.homeGoals,
-          awayGoals: item.awayGoals,
-          updatedAt: ts,
-        }),
-      );
-      continue;
-    }
-
-    const id = randomUUID();
-    operations.push(
-      tx.prode_predictions[id].update({
-        id,
-        userId,
-        matchId: item.matchId,
-        homeGoals: item.homeGoals,
-        awayGoals: item.awayGoals,
-        updatedAt: ts,
-        lockedAt: ts,
-      }),
-    );
-    existingByUserMatch.set(item.matchId, {
-      id,
-      userId,
-      matchId: item.matchId,
+    predictionsMap[item.matchId] = {
       homeGoals: item.homeGoals,
       awayGoals: item.awayGoals,
       updatedAt: ts,
-      lockedAt: ts,
-    });
+    };
+    changed = true;
   }
 
-  if (operations.length > 0) {
-    await getInstantAdminDb().transact(operations);
+  if (changed) {
+    const id = existingUserPredictionsDoc?.id ?? randomUUID();
+    await getInstantAdminDb().transact([
+      tx.prode_user_predictions[id].update({
+        id,
+        userId,
+        predictions: predictionsMap,
+        updatedAt: ts,
+      }),
+    ]);
     invalidateCoreStateCache();
   }
 
@@ -610,9 +666,11 @@ export async function deleteUserAccount(userId: string) {
   if (!user) throw new Error('Usuario no encontrado');
   if (user.role === 'admin') throw new Error('El administrador no puede eliminarse desde Usuarios');
 
-  const operations: any[] = current.predictions
-    .filter((p) => p.userId === userId)
-    .map((p) => tx.prode_predictions[p.id].delete());
+  const operations: any[] = [];
+  const userPredDoc = current.userPredictions.find((p) => p.userId === userId);
+  if (userPredDoc) {
+    operations.push(tx.prode_user_predictions[userPredDoc.id].delete());
+  }
   operations.push(tx.prode_users[userId].delete());
 
   await getInstantAdminDb().transact(operations);
@@ -632,15 +690,17 @@ export async function adminDeleteUser(targetUserId: string) {
   if (!user) throw new Error('Usuario no encontrado');
   if (user.role === 'admin') throw new Error('No se puede eliminar un usuario administrador');
 
-  const operations: any[] = current.predictions
-    .filter((p) => p.userId === targetUserId)
-    .map((p) => tx.prode_predictions[p.id].delete());
+  const operations: any[] = [];
+  const userPredDoc = current.userPredictions.find((p) => p.userId === targetUserId);
+  if (userPredDoc) {
+    operations.push(tx.prode_user_predictions[userPredDoc.id].delete());
+  }
   operations.push(tx.prode_users[targetUserId].delete());
   await getInstantAdminDb().transact(operations);
   invalidateCoreStateCache();
 }
 
-export async function markUserRegistrationPaymentApproved(userId: string) {
+export async function markUserRegistrationPaymentApproved(userId: string, receipt?: string | null) {
   await ensureBaseData();
   const user = await queryUserByIdOnly(userId);
   if (!user) throw new Error('Usuario no encontrado');
@@ -651,6 +711,7 @@ export async function markUserRegistrationPaymentApproved(userId: string) {
     tx.prode_users[userId].update({
       registrationPaymentStatus: 'approved',
       registrationPaymentApprovedAt: ts,
+      registrationPaymentReceipt: receipt ?? user.registrationPaymentReceipt ?? null,
       updatedAt: ts,
     }),
   ]);
@@ -660,6 +721,7 @@ export async function markUserRegistrationPaymentApproved(userId: string) {
     ...user,
     registrationPaymentStatus: 'approved',
     registrationPaymentApprovedAt: ts,
+    registrationPaymentReceipt: receipt ?? user.registrationPaymentReceipt ?? null,
     updatedAt: ts,
   });
 }
@@ -736,29 +798,31 @@ export async function getPredictionsScreenState(viewerToken?: string | null): Pr
   const officialResultsPromise = queryOfficialResultsOnly();
 
   let viewerUser: User | null = null;
-  let userPredictions: InstantPredictionDoc[] = [];
+  let userPredictions: Prediction[] = [];
   if (session) {
-    const [userDoc, predictionsDocs] = await Promise.all([
+    const [userDoc, userPredictionsDoc] = await Promise.all([
       queryUserByIdOnly(session.userId),
-      queryPredictionsByUserOnly(session.userId),
+      queryUserPredictionsDocByUserOnly(session.userId),
     ]);
     if (userDoc && userDoc.role === session.role) {
       viewerUser = publicUser(userDoc);
-      userPredictions = predictionsDocs;
+      if (userPredictionsDoc) {
+        userPredictions = Object.entries(userPredictionsDoc.predictions ?? {}).map(([matchId, entry]) => ({
+          id: `${userPredictionsDoc.id}:${matchId}`,
+          userId: session.userId,
+          matchId,
+          homeGoals: entry.homeGoals,
+          awayGoals: entry.awayGoals,
+          updatedAt: entry.updatedAt,
+        }));
+      }
     }
   }
 
   const officialResults = await officialResultsPromise;
   const db = applyOfficialResultsToSeed(officialResults);
   db.users = viewerUser ? [viewerUser] : [];
-  db.predictions = userPredictions.map((p) => ({
-    id: p.id,
-    userId: p.userId,
-    matchId: p.matchId,
-    homeGoals: p.homeGoals,
-    awayGoals: p.awayGoals,
-    updatedAt: p.updatedAt,
-  }));
+  db.predictions = userPredictions;
 
   return {
     db,
@@ -776,3 +840,6 @@ export async function getPredictionsScreenState(viewerToken?: string | null): Pr
     },
   };
 }
+
+
+

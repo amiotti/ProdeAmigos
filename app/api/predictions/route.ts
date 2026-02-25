@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const token = cookies().get(getSessionCookieName())?.value ?? null;
     const user = await getUserFromSessionToken(token);
     if (!user) {
-      return NextResponse.json({ ok: false, error: 'Debes iniciar sesion para cargar predicciones' }, { status: 401 });
+      return NextResponse.json({ ok: false, error: 'Debes iniciar sesión para cargar predicciones' }, { status: 401 });
     }
 
     const result = await savePredictions(user.id, body.predictions ?? []);
@@ -28,3 +28,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: message }, { status: 400 });
   }
 }
+
+

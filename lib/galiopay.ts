@@ -141,3 +141,4 @@ export function isGalioApprovedStatus(status: string | null | undefined) {
   const normalized = (status ?? '').trim().toLowerCase();
   return ['approved', 'paid', 'success', 'succeeded', 'completed'].includes(normalized);
 }
+

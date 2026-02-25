@@ -25,9 +25,9 @@ export type User = {
   firstName: string;
   lastName: string;
   phone: string;
-  photoDataUrl?: string | null;
   registrationPaymentStatus?: 'pending' | 'approved' | 'failed';
   registrationPaymentApprovedAt?: string | null;
+  registrationPaymentReceipt?: string | null;
   name: string;
   email: string;
   role: 'admin' | 'user';
@@ -62,7 +62,6 @@ export type LeaderboardRow = {
   firstName: string;
   lastName: string;
   userName: string;
-  photoDataUrl?: string | null;
   totalPoints: number;
   exactHits: number;
   outcomeHits: number;
@@ -85,3 +84,4 @@ export type StateResponse = {
     predictions: number;
   };
 };
+

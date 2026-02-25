@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
-import { Bebas_Neue, Manrope } from 'next/font/google';
+import { Noto_Sans, Oswald } from 'next/font/google';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
 
 import '@/app/globals.css';
 import { AppShell } from '@/components/app-shell';
 
-const bodyFont = Manrope({ subsets: ['latin'], variable: '--font-body' });
-const titleFont = Bebas_Neue({ subsets: ['latin'], weight: '400', variable: '--font-title' });
+const bodyFont = Noto_Sans({ subsets: ['latin'], variable: '--font-body' });
+const titleFont = Oswald({ subsets: ['latin'], weight: ['500', '700'], variable: '--font-title' });
 
 export const metadata: Metadata = {
-  title: 'PRODE Mundial 2026',
+  title: '🏆 PRODE Mundial 2026',
   description: 'Predicciones del mundial con registro, resultados y tabla de posiciones',
 };
 
@@ -38,3 +38,4 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     </html>
   );
 }
+

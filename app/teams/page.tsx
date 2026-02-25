@@ -22,8 +22,8 @@ export default async function TeamsPage() {
       <div className="panel">
         <h2>Selecciones</h2>
         <p className="muted">
-          Vista comparativa con datos deportivos utiles para el PRODE: fuerza estimada, exigencia del grupo y rival mas
-          duro. Entra a cada seleccion para ver el detalle completo.
+          Vista comparativa con datos deportivos útiles para el PRODE: fuerza estimada, exigencia del grupo y rival más
+          duro. Entrá a cada selección para ver el detalle completo.
         </p>
       </div>
 
@@ -56,7 +56,7 @@ export default async function TeamsPage() {
                 </ul>
 
                 <div className="chips-row">
-                  <span className="chip">Indice {team.fifaStrength}</span>
+                  <span className="chip">Índice {team.fifaStrength}</span>
                   <span className="chip">{team.isPlaceholder ? 'Cupo por repechaje' : 'Clasificado'}</span>
                   <span className="chip">{team.confederation}</span>
                 </div>

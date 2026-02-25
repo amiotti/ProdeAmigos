@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 
+import { UserEvolutionComparisonChart } from '@/components/user-evolution-comparison-chart';
 import { getSessionCookieName } from '@/lib/auth';
 import { getState } from '@/lib/db';
 import { calculatePredictionPoints } from '@/lib/prode';
@@ -390,7 +391,7 @@ function AdminStatsDashboard({ state }: { state: StateResponse }) {
           {participationBars.length > 0 ? <HorizontalBars data={participationBars} /> : <p className="muted">Aun no hay predicciones.</p>}
         </div>
         <div className="panel stack-md">
-          <div className="section-head"><h3>Precision global del PRODE</h3><span>Predicciones evaluadas</span></div>
+          <div className="section-head"><h3>Precisión global del PRODE</h3><span>Predicciones evaluadas</span></div>
           <DonutChart
             centerLabel="pred."
             segments={[
@@ -464,7 +465,12 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
   }
 
   const nextMatch = analytics.nextMatchId ? state.db.matches.find((m) => m.id === analytics.nextMatchId) : undefined;
-  const cumulative = buildCumulativeSeries(state, analytics, user.id);
+  const evolutionLabels = analytics.cumulativeLabels.length ? analytics.cumulativeLabels : ['Sin fechas'];
+  const evolutionUsers = state.leaderboard.map((row) => ({
+    userId: row.userId,
+    label: `${row.firstName} ${row.lastName}`.trim() || row.userName,
+    values: analytics.cumulativeByUser.get(row.userId) ?? [],
+  }));
   const monteCarloIterations = recommendMonteCarloIterations(state.summary.users, state.summary.predictions);
   const monteCarloResults = simulateWinProbabilities(state, monteCarloIterations);
   const montecarlo = monteCarloResults
@@ -480,30 +486,30 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
   if (riskPct >= 35) badges.push('Kamikaze');
   if (outcomePct >= 60) badges.push('Analista');
   if (userRow && rank && rank <= 3) badges.push('Podio');
-  if (totalScored > 0 && exactPct < 5 && outcomePct < 30) badges.push('Pecho frio 😄');
+  if (totalScored > 0 && exactPct < 5 && outcomePct < 30) badges.push('Pecho frío');
 
   return (
     <section className="stack-lg">
       <div className="panel stack-md">
         <h2>Estadisticas personales</h2>
         <p className="muted">
-          Tu dashboard del PRODE: rendimiento, precision, tendencia y comparacion con el grupo.
+          Tu dashboard del PRODE: rendimiento, precisión, tendencia y comparación con el grupo.
         </p>
         <div className="detail-grid">
           <div className="detail-card">
             <span className="detail-label">Ranking general</span>
             <strong>{rank ? `#${rank}` : 'Sin ranking'}</strong>
-            <span className="muted compact-text">{userRow ? `${userRow.totalPoints} puntos` : 'Aun no hay puntaje'}</span>
+            <span className="muted compact-text">{userRow ? `${userRow.totalPoints} puntos` : 'Aún no hay puntaje'}</span>
           </div>
           <div className="detail-card">
-            <span className="detail-label">Diferencia con el lider</span>
+            <span className="detail-label">Diferencia con el líder</span>
             <strong>{diffToLeader ?? 0} pts</strong>
-            <span className="muted compact-text">{leader ? `Lider: ${leader.firstName} ${leader.lastName}` : 'Sin lider aun'}</span>
+            <span className="muted compact-text">{leader ? `Líder: ${leader.firstName} ${leader.lastName}` : 'Sin líder aun'}</span>
           </div>
           <div className="detail-card">
             <span className="detail-label">Probabilidad de ganar</span>
             <strong>{userProb}%</strong>
-            <span className="muted compact-text">Modelo simple de simulacion (Monte Carlo)</span>
+            <span className="muted compact-text">Modelo simple de simulación (Monte Carlo)</span>
           </div>
         </div>
       </div>
@@ -511,7 +517,7 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
       <div className="stats-grid">
         <div className="panel stack-md">
           <div className="section-head">
-            <h3>🏆 Ranking general</h3>
+            <h3>Ranking general</h3>
             <span>Puntaje por jugador</span>
           </div>
           <HorizontalBars
@@ -525,7 +531,7 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
 
         <div className="panel stack-md">
           <div className="section-head">
-            <h3>🎯 Precision de tus pronosticos</h3>
+            <h3>Precisión de tus pronósticos</h3>
             <span>{totalScored} evaluadas</span>
           </div>
           <HorizontalBars
@@ -546,20 +552,16 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
 
       <div className="panel stack-md">
         <div className="section-head">
-          <h3>📈 Evolucion del puntaje</h3>
+          <h3>Evolución del puntaje</h3>
           <span>Acumulado por partido con resultado oficial</span>
         </div>
-        {cumulative.series.length > 0 && cumulative.series.some((s) => s.values.length > 0) ? (
-          <LineChart labels={cumulative.labels} series={cumulative.series} />
-        ) : (
-          <p className="muted">Todavia no hay partidos con resultado oficial para graficar evolucion.</p>
-        )}
+        <UserEvolutionComparisonChart labels={evolutionLabels} users={evolutionUsers} currentUserId={user.id} />
       </div>
 
       <div className="stats-grid">
         <div className="panel stack-md">
           <div className="section-head">
-            <h3>⚽ Predicciones del proximo partido</h3>
+            <h3>Predicciones del próximo partido</h3>
             <span>{nextMatch ? `${nextMatch.homeTeam} vs ${nextMatch.awayTeam}` : 'Sin partidos futuros'}</span>
           </div>
           {nextMatch ? (
@@ -581,8 +583,8 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
 
         <div className="panel stack-md">
           <div className="section-head">
-            <h3>👑 Probabilidad de ganar</h3>
-            <span>Top 8 (simulacion)</span>
+            <h3>Probabilidad de ganar</h3>
+            <span>Top 8 (simulación)</span>
           </div>
           <HorizontalBars percent data={montecarlo} />
           <p className="muted">
@@ -594,7 +596,7 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
 
       <div className="panel stack-md">
         <div className="section-head">
-          <h3>🧠 Tu perfil de juego</h3>
+          <h3>Tu perfil de juego</h3>
           <span>Riesgo vs consistencia</span>
         </div>
         <div className="detail-grid">
@@ -606,7 +608,7 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
           <div className="detail-card">
             <span className="detail-label">Resultados exactos</span>
             <strong>{exactCount}</strong>
-            <span className="muted compact-text">Tu metrica de “adicto al detalle”.</span>
+            <span className="muted compact-text">Tu métrica de "adicto al detalle".</span>
           </div>
           <div className="detail-card">
             <span className="detail-label">Predicciones evaluadas</span>

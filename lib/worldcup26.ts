@@ -13,48 +13,104 @@ export type TeamInfo = {
   isPlaceholder?: boolean;
 };
 
+function fixMojibakeText(value: string): string {
+  if (!value || !/[ÃÂï]/.test(value)) return value;
+  try {
+    const bytes = Uint8Array.from([...value].map((ch) => ch.charCodeAt(0) & 0xff));
+    const decoded = new TextDecoder('utf-8').decode(bytes);
+    return /�/.test(decoded) ? value : decoded;
+  } catch {
+    return value;
+  }
+}
+
+function applySpanishAccents(value: string): string {
+  let text = value;
+  const replacements: Array<[RegExp, string]> = [
+    [/\bSeleccion\b/g, 'Selección'],
+    [/\bseleccion\b/g, 'selección'],
+    [/\bAnfitrion\b/g, 'Anfitrión'],
+    [/\banfitrion\b/g, 'anfitrión'],
+    [/\bhistorica\b/g, 'histórica'],
+    [/\bhistorico\b/g, 'histórico'],
+    [/\basiatica\b/g, 'asiática'],
+    [/\bafricana\b/g, 'africana'],
+    [/\beuropea\b/g, 'europea'],
+    [/\btactico\b/g, 'táctico'],
+    [/\btecnica\b/g, 'técnica'],
+    [/\btecnicamente\b/g, 'técnicamente'],
+    [/\bpresion\b/g, 'presión'],
+    [/\bdefensiva\b/g, 'defensiva'],
+    [/\bfisico\b/g, 'físico'],
+    [/\bfisica\b/g, 'física'],
+    [/\boceanico\b/g, 'oceánico'],
+    [/\brapidas\b/g, 'rápidas'],
+    [/\brapida\b/g, 'rápida'],
+    [/\bMundial\b/g, 'Mundial'],
+    [/\blocalia\b/g, 'localía'],
+    [/\bclasificacion\b/g, 'clasificación'],
+    [/\bultima\b/g, 'última'],
+    [/\bvariabilidad\b/g, 'variabilidad'],
+    [/\bindice\b/g, 'índice'],
+    [/\btitulo\b/g, 'título'],
+    [/\bdefinicion\b/g, 'definición'],
+    [/\bTodavia\b/g, 'Todavía'],
+    [/\btodavia\b/g, 'todavía'],
+    [/\bJapón\b/g, 'Japón'],
+  ];
+
+  for (const [pattern, replacement] of replacements) {
+    text = text.replace(pattern, replacement);
+  }
+  return text;
+}
+
+function normalizeSpanishDisplayText(value: string): string {
+  return applySpanishAccents(fixMojibakeText(value));
+}
+
 const TEAM_WIKIPEDIA_TITLE_OVERRIDES: Record<string, string> = {
-  'Arabia Saudita': 'Selección_de_fútbol_de_Arabia_Saudita',
-  Argelia: 'Selección_de_fútbol_de_Argelia',
-  Argentina: 'Selección_de_fútbol_de_Argentina',
-  Australia: 'Selección_de_fútbol_de_Australia',
-  Austria: 'Selección_de_fútbol_de_Austria',
-  Belgica: 'Selección_de_fútbol_de_Bélgica',
-  Brasil: 'Selección_de_fútbol_de_Brasil',
-  Canada: 'Selección_de_fútbol_de_Canadá',
-  'Cabo Verde': 'Selección_de_fútbol_de_Cabo_Verde',
-  Colombia: 'Selección_de_fútbol_de_Colombia',
-  'Corea del Sur': 'Selección_de_fútbol_de_Corea_del_Sur',
-  'Costa de Marfil': 'Selección_de_fútbol_de_Costa_de_Marfil',
-  Croacia: 'Selección_de_fútbol_de_Croacia',
-  Curazao: 'Selección_de_fútbol_de_Curazao',
-  Ecuador: 'Selección_de_fútbol_de_Ecuador',
-  Egipto: 'Selección_de_fútbol_de_Egipto',
-  Inglaterra: 'Selección_de_fútbol_de_Inglaterra',
-  Espana: 'Selección_de_fútbol_de_España',
-  'Estados Unidos': 'Selección_de_fútbol_de_los_Estados_Unidos',
-  Escocia: 'Selección_de_fútbol_de_Escocia',
-  Francia: 'Selección_de_fútbol_de_Francia',
-  Ghana: 'Selección_de_fútbol_de_Ghana',
-  Haiti: 'Selección_de_fútbol_de_Haití',
-  Iran: 'Selección_de_fútbol_de_Irán',
-  Japon: 'Selección_de_fútbol_de_Japón',
-  Jordania: 'Selección_de_fútbol_de_Jordania',
-  Marruecos: 'Selección_de_fútbol_de_Marruecos',
-  Mexico: 'Selección_de_fútbol_de_México',
-  'Nueva Zelanda': 'Selección_de_fútbol_de_Nueva_Zelanda',
-  Noruega: 'Selección_de_fútbol_de_Noruega',
-  Panama: 'Selección_de_fútbol_de_Panamá',
-  Paraguay: 'Selección_de_fútbol_de_Paraguay',
-  'Paises Bajos': 'Selección_de_fútbol_de_los_Países_Bajos',
-  Portugal: 'Selección_de_fútbol_de_Portugal',
-  Qatar: 'Selección_de_fútbol_de_Catar',
-  Senegal: 'Selección_de_fútbol_de_Senegal',
-  Sudafrica: 'Selección_de_fútbol_de_Sudáfrica',
-  Suiza: 'Selección_de_fútbol_de_Suiza',
-  Tunez: 'Selección_de_fútbol_de_Túnez',
-  Uruguay: 'Selección_de_fútbol_de_Uruguay',
-  Uzbekistan: 'Selección_de_fútbol_de_Uzbekistán',
+  'Arabia Saudita': 'SelecciÃ³n_de_fÃºtbol_de_Arabia_Saudita',
+  Argelia: 'SelecciÃ³n_de_fÃºtbol_de_Argelia',
+  Argentina: 'SelecciÃ³n_de_fÃºtbol_de_Argentina',
+  Australia: 'SelecciÃ³n_de_fÃºtbol_de_Australia',
+  Austria: 'SelecciÃ³n_de_fÃºtbol_de_Austria',
+  Belgica: 'SelecciÃ³n_de_fÃºtbol_de_BÃ©lgica',
+  Brasil: 'SelecciÃ³n_de_fÃºtbol_de_Brasil',
+  Canada: 'SelecciÃ³n_de_fÃºtbol_de_CanadÃ¡',
+  'Cabo Verde': 'SelecciÃ³n_de_fÃºtbol_de_Cabo_Verde',
+  Colombia: 'SelecciÃ³n_de_fÃºtbol_de_Colombia',
+  'Corea del Sur': 'SelecciÃ³n_de_fÃºtbol_de_Corea_del_Sur',
+  'Costa de Marfil': 'SelecciÃ³n_de_fÃºtbol_de_Costa_de_Marfil',
+  Croacia: 'SelecciÃ³n_de_fÃºtbol_de_Croacia',
+  Curazao: 'SelecciÃ³n_de_fÃºtbol_de_Curazao',
+  Ecuador: 'SelecciÃ³n_de_fÃºtbol_de_Ecuador',
+  Egipto: 'SelecciÃ³n_de_fÃºtbol_de_Egipto',
+  Inglaterra: 'SelecciÃ³n_de_fÃºtbol_de_Inglaterra',
+  Espana: 'SelecciÃ³n_de_fÃºtbol_de_EspaÃ±a',
+  'Estados Unidos': 'SelecciÃ³n_de_fÃºtbol_de_los_Estados_Unidos',
+  Escocia: 'SelecciÃ³n_de_fÃºtbol_de_Escocia',
+  Francia: 'SelecciÃ³n_de_fÃºtbol_de_Francia',
+  Ghana: 'SelecciÃ³n_de_fÃºtbol_de_Ghana',
+  Haiti: 'SelecciÃ³n_de_fÃºtbol_de_HaitÃ­',
+  Iran: 'SelecciÃ³n_de_fÃºtbol_de_IrÃ¡n',
+  Japon: 'SelecciÃ³n_de_fÃºtbol_de_JapÃ³n',
+  Jordania: 'SelecciÃ³n_de_fÃºtbol_de_Jordania',
+  Marruecos: 'SelecciÃ³n_de_fÃºtbol_de_Marruecos',
+  Mexico: 'SelecciÃ³n_de_fÃºtbol_de_MÃ©xico',
+  'Nueva Zelanda': 'SelecciÃ³n_de_fÃºtbol_de_Nueva_Zelanda',
+  Noruega: 'SelecciÃ³n_de_fÃºtbol_de_Noruega',
+  Panama: 'SelecciÃ³n_de_fÃºtbol_de_PanamÃ¡',
+  Paraguay: 'SelecciÃ³n_de_fÃºtbol_de_Paraguay',
+  'Paises Bajos': 'SelecciÃ³n_de_fÃºtbol_de_los_PaÃ­ses_Bajos',
+  Portugal: 'SelecciÃ³n_de_fÃºtbol_de_Portugal',
+  Qatar: 'SelecciÃ³n_de_fÃºtbol_de_Catar',
+  Senegal: 'SelecciÃ³n_de_fÃºtbol_de_Senegal',
+  Sudafrica: 'SelecciÃ³n_de_fÃºtbol_de_SudÃ¡frica',
+  Suiza: 'SelecciÃ³n_de_fÃºtbol_de_Suiza',
+  Tunez: 'SelecciÃ³n_de_fÃºtbol_de_TÃºnez',
+  Uruguay: 'SelecciÃ³n_de_fÃºtbol_de_Uruguay',
+  Uzbekistan: 'SelecciÃ³n_de_fÃºtbol_de_UzbekistÃ¡n',
 };
 
 type CalendarEvent = {
@@ -76,6 +132,25 @@ type OfficialFixtureRow = {
   homeTeam?: string;
   awayTeam?: string;
 };
+
+const VENUE_UTC_OFFSET_BY_PREFIX: Array<{ prefix: string; offsetHours: number }> = [
+  { prefix: 'Mexico City Stadium', offsetHours: -6 },
+  { prefix: 'Estadio Guadalajara', offsetHours: -6 },
+  { prefix: 'Estadio Monterrey', offsetHours: -6 },
+  { prefix: 'BC Place', offsetHours: -7 },
+  { prefix: 'Los Angeles Stadium', offsetHours: -7 },
+  { prefix: 'San Francisco Bay Area Stadium', offsetHours: -7 },
+  { prefix: 'Seattle Stadium', offsetHours: -7 },
+  { prefix: 'Dallas Stadium', offsetHours: -5 },
+  { prefix: 'Houston Stadium', offsetHours: -5 },
+  { prefix: 'Kansas City Stadium', offsetHours: -5 },
+  { prefix: 'Atlanta Stadium', offsetHours: -4 },
+  { prefix: 'Boston Stadium', offsetHours: -4 },
+  { prefix: 'Miami Stadium', offsetHours: -4 },
+  { prefix: 'New York New Jersey Stadium', offsetHours: -4 },
+  { prefix: 'Philadelphia Stadium', offsetHours: -4 },
+  { prefix: 'Toronto Stadium', offsetHours: -4 },
+];
 
 const TEAM_CATALOG: TeamInfo[] = [
   {
@@ -268,7 +343,7 @@ const TEAM_CATALOG: TeamInfo[] = [
     flag: 'NL',
     confederation: 'UEFA',
     fifaStrength: 1900,
-    shortDescription: 'Seleccion europea de posesion, tecnica y alta intensidad.',
+    shortDescription: 'Selección europea de posesión, técnica y alta intensidad.',
   },
   {
     id: 'japon',
@@ -341,7 +416,7 @@ const TEAM_CATALOG: TeamInfo[] = [
     flag: 'ES',
     confederation: 'UEFA',
     fifaStrength: 1920,
-    shortDescription: 'Posesion y presion alta, siempre candidata.',
+    shortDescription: 'Posesión y presión alta, siempre candidata.',
   },
   {
     id: 'uruguay',
@@ -598,6 +673,54 @@ const OFFICIAL_FIXTURE_ROWS = (officialFixtureRaw.fixtures as OfficialFixtureRow
 
 const TEAM_INFO_BY_NAME = new Map(TEAM_CATALOG.map((team) => [team.name, team]));
 
+const FIFA_WORLD_CUP_2026_TEAM_NEWS_BASE =
+  'https://www.fifa.com/es/tournaments/mens/worldcup/canadamexicousa2026/teams';
+
+const FIFA_TEAM_NEWS_SLUG_BY_TEAM: Record<string, string> = {
+  Alemania: 'germany',
+  'Arabia Saudita': 'saudi-arabia',
+  Argelia: 'algeria',
+  Argentina: 'argentina',
+  Australia: 'australia',
+  Austria: 'austria',
+  Belgica: 'belgium',
+  Brasil: 'brazil',
+  'Cabo Verde': 'cabo-verde',
+  Canada: 'canada',
+  Colombia: 'colombia',
+  'Corea del Sur': 'korea-republic',
+  'Costa de Marfil': 'cote-divoire',
+  Croacia: 'croatia',
+  Curazao: 'curacao',
+  Ecuador: 'ecuador',
+  Egipto: 'egypt',
+  Espana: 'spain',
+  'Estados Unidos': 'usa',
+  Escocia: 'scotland',
+  Francia: 'france',
+  Ghana: 'ghana',
+  Haiti: 'haiti',
+  Iran: 'ir-iran',
+  Inglaterra: 'england',
+  Japon: 'japan',
+  Jordania: 'jordan',
+  Marruecos: 'morocco',
+  Mexico: 'mexico',
+  'Nueva Zelanda': 'new-zealand',
+  Noruega: 'norway',
+  Panama: 'panama',
+  Paraguay: 'paraguay',
+  'Paises Bajos': 'netherlands',
+  Portugal: 'portugal',
+  Qatar: 'qatar',
+  Senegal: 'senegal',
+  Sudafrica: 'south-africa',
+  Suiza: 'switzerland',
+  Tunez: 'tunisia',
+  Uruguay: 'uruguay',
+  Uzbekistan: 'uzbekistan',
+};
+
 function ensureCompleteOfficialFixtureRows(rows: OfficialFixtureRow[]): OfficialFixtureRow[] {
   const hasTunisiaNetherlands = rows.some(
     (row) =>
@@ -642,10 +765,85 @@ function parseGmtInfoToIso(dateHeading: string, gmtInfo: string): string {
   const minute = timeMatch ? Number(timeMatch[2]) : 0;
 
   const utc = new Date(Date.UTC(date.year, date.month - 1, date.day, hour, minute, 0));
-  if (/on\s+(Friday|Saturday|Sunday|Monday|Tuesday|Wednesday|Thursday)/i.test(gmtInfo)) {
-    utc.setUTCDate(utc.getUTCDate() + 1);
+  const weekdayMatch = gmtInfo.match(/on\s+(Friday|Saturday|Sunday|Monday|Tuesday|Wednesday|Thursday)/i);
+  if (weekdayMatch) {
+    const weekdayMap: Record<string, number> = {
+      Sunday: 0,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+    };
+    const targetWeekday = weekdayMap[weekdayMatch[1][0].toUpperCase() + weekdayMatch[1].slice(1).toLowerCase()];
+    if (Number.isInteger(targetWeekday) && utc.getUTCDay() !== targetWeekday) {
+      utc.setUTCDate(utc.getUTCDate() + 1);
+    }
   }
   return utc.toISOString();
+}
+
+function parseLocalTimeToParts(localTime: string): { hour: number; minute: number; addDay: number } | null {
+  const normalized = localTime.trim().toLowerCase();
+  if (!normalized) return null;
+  if (normalized === 'midnight') {
+    // In this fixture source, "midnight" is listed at the end of the day block (00:00 of next local day).
+    return { hour: 0, minute: 0, addDay: 1 };
+  }
+
+  const match = normalized.match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/i);
+  if (!match) return null;
+
+  let hour = Number(match[1]);
+  const minute = Number(match[2] ?? '0');
+  const meridiem = match[3].toLowerCase();
+
+  if (meridiem === 'am') {
+    if (hour === 12) hour = 0;
+  } else if (hour !== 12) {
+    hour += 12;
+  }
+
+  return { hour, minute, addDay: 0 };
+}
+
+function getVenueUtcOffsetHours(venue?: string): number | null {
+  if (!venue) return null;
+  const hit = VENUE_UTC_OFFSET_BY_PREFIX.find((entry) => venue.startsWith(entry.prefix));
+  return hit ? hit.offsetHours : null;
+}
+
+function parseOfficialFixtureLocalKickoffToIso(row: OfficialFixtureRow): string | null {
+  const date = parseDateHeadingToUtcDate(row.dateHeading);
+  const time = parseLocalTimeToParts(row.localTime);
+  const venueOffset = getVenueUtcOffsetHours(row.venue);
+  if (!time || venueOffset === null) return null;
+
+  const utc = new Date(Date.UTC(date.year, date.month - 1, date.day, time.hour - venueOffset, time.minute, 0));
+  if (time.addDay) {
+    utc.setUTCDate(utc.getUTCDate() + time.addDay);
+  }
+
+  return utc.toISOString();
+}
+
+function getOfficialRowKickoffIso(row: OfficialFixtureRow): string {
+  return getManualKickoffOverrideIso(row) ?? parseOfficialFixtureLocalKickoffToIso(row) ?? parseGmtInfoToIso(row.dateHeading, row.gmtInfo);
+}
+
+function getManualKickoffOverrideIso(row: { stage: string; matchLabel: string }) {
+  if (row.stage !== 'group') return null;
+  if (row.matchLabel === 'Argentina vs Algeria') {
+    return new Date(Date.UTC(2026, 5, 17, 1, 0, 0)).toISOString(); // 16/06/2026 22:00 Argentina
+  }
+  if (row.matchLabel === 'Argentina vs Austria') {
+    return new Date(Date.UTC(2026, 5, 22, 17, 0, 0)).toISOString(); // 22/06/2026 14:00 Argentina
+  }
+  if (row.matchLabel === 'Jordan vs Argentina') {
+    return new Date(Date.UTC(2026, 5, 28, 2, 0, 0)).toISOString(); // 27/06/2026 23:00 Argentina
+  }
+  return null;
 }
 
 function mapArticleTeamToCanonical(articleTeam: string, groupIdHint: string | null): string {
@@ -721,11 +919,19 @@ export function getFlagAssetUrl(teamName: string): string | null {
   return `https://hatscripts.github.io/circle-flags/flags/${code}.svg`;
 }
 
+export function getFifaTeamNewsUrl(teamName: string): string | null {
+  const team = getTeamInfo(teamName);
+  if (team.isPlaceholder) return null;
+  const slug = FIFA_TEAM_NEWS_SLUG_BY_TEAM[team.name];
+  if (!slug) return null;
+  return `${FIFA_WORLD_CUP_2026_TEAM_NEWS_BASE}/${slug}/team-news`;
+}
+
 export function getWikipediaTitleForTeam(teamName: string): string {
   const canonical = getTeamInfo(teamName).name;
   const override = TEAM_WIKIPEDIA_TITLE_OVERRIDES[canonical];
   if (override) return override;
-  return `Selección_de_fútbol_de_${canonical.replace(/\s+/g, '_')}`;
+  return fixMojibakeText(`SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_${canonical.replace(/\s+/g, '_')}`);
 }
 
 export function buildTeamProdeSummary(teamName: string, groupId?: string) {
@@ -733,7 +939,7 @@ export function buildTeamProdeSummary(teamName: string, groupId?: string) {
   const base = `${team.name} integra ${team.confederation}${groupId ? ` y compite en el Grupo ${groupId}` : ''} del Mundial 2026.`;
 
   if (team.isPlaceholder) {
-    return `${base} Esta plaza todavia no tiene seleccionado confirmado porque depende del repechaje.`;
+    return fixMojibakeText(`${base} Esta plaza todavÃ­a no tiene seleccionado confirmado porque depende del repechaje.`);
   }
 
   let tier = 'equipo competitivo';
@@ -741,7 +947,9 @@ export function buildTeamProdeSummary(teamName: string, groupId?: string) {
   else if (team.fifaStrength >= 1860) tier = 'candidato fuerte';
   else if (team.fifaStrength >= 1780) tier = 'seleccion muy competitiva';
 
-  return `${base} En el PRODE la app la evalua como ${tier} (indice ${team.fifaStrength}), por lo que sus probabilidades prepartido tienden a reflejar ese perfil.`;
+  return normalizeSpanishDisplayText(
+    `${base} En el PRODE la app la evalua como ${tier} (indice ${team.fifaStrength}), por lo que sus probabilidades prepartido tienden a reflejar ese perfil.`,
+  );
 }
 
 export function buildTeamSportFacts(teamName: string, groupTeams?: string[]) {
@@ -797,11 +1005,18 @@ export function buildTeamSportFacts(teamName: string, groupTeams?: string[]) {
     objective,
   ];
 
-  return facts;
+  return facts.map(normalizeSpanishDisplayText);
 }
 
 export function getAllTeams(): TeamInfo[] {
-  return TEAM_CATALOG.slice().sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  return TEAM_CATALOG
+    .map((team) => ({
+      ...team,
+      name: normalizeSpanishDisplayText(team.name),
+      shortDescription: normalizeSpanishDisplayText(team.shortDescription),
+      notes: team.notes ? normalizeSpanishDisplayText(team.notes) : undefined,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'es'));
 }
 
 export function estimateMatchProbabilities(homeTeam: string, awayTeam: string) {
@@ -920,7 +1135,7 @@ export function getOfficialGroupStageFixtures() {
         groupId,
         homeTeam,
         awayTeam,
-        kickoffAt: parseGmtInfoToIso(row.dateHeading, row.gmtInfo),
+        kickoffAt: getOfficialRowKickoffIso(row),
         venue: row.venue,
         sourceLabel: row.matchLabel,
         dateHeading: row.dateHeading,
@@ -991,14 +1206,14 @@ export function buildCalendarFixtures(
       return {
         id,
         stage: `Fase de grupos - ${groupId}`,
-        date: parseGmtInfoToIso(row.dateHeading, row.gmtInfo),
+        date: match?.kickoffAt ?? getOfficialRowKickoffIso(row),
         homeTeam,
         awayTeam,
         venue: row.venue,
       };
     }
 
-    const date = parseGmtInfoToIso(row.dateHeading, row.gmtInfo);
+    const date = getOfficialRowKickoffIso(row);
     const knockoutId = `KO-${counters.knockout++}`;
     return {
       id: knockoutId,
@@ -1012,3 +1227,5 @@ export function buildCalendarFixtures(
 
   return fixtures.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
+
+

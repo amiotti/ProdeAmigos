@@ -13,7 +13,7 @@ function getText(status: string | undefined) {
   if (status === 'success' || status === 'approved') {
     return {
       title: 'Pago aprobado',
-      description: 'La inscripcion fue pagada correctamente. Ya puedes continuar en la app.',
+      description: 'La inscripción fue pagada correctamente. Ya puedes continuar en la app.',
     };
   }
   if (status === 'pending') {
@@ -63,7 +63,7 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
   if (approvalSignal && sessionUser && sessionUser.role !== 'admin') {
     try {
       const before = sessionUser.registrationPaymentStatus;
-      const updated = await markUserRegistrationPaymentApproved(sessionUser.id);
+      const updated = await markUserRegistrationPaymentApproved(sessionUser.id, galioPaymentId ?? null);
       approvedNow = before !== 'approved' && updated.registrationPaymentStatus === 'approved';
     } catch {
       approvedNow = false;
@@ -85,16 +85,16 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
         {receiptNumber ? <p className="muted">N° de comprobante: <strong>{receiptNumber}</strong></p> : null}
         {sessionUser && sessionUser.role !== 'admin' ? (
           <p className="muted">
-            Estado de inscripcion actual: <strong>{approvedNow ? 'approved' : sessionUser.registrationPaymentStatus ?? 'pending'}</strong>
+            Estado de inscripción actual: <strong>{approvedNow ? 'approved' : sessionUser.registrationPaymentStatus ?? 'pending'}</strong>
           </p>
         ) : null}
         {provider === 'galio' && galioPaymentFetchError ? (
-          <p className="status">No pudimos validar el pago automaticamente. Revisa el estado e intenta nuevamente.</p>
+          <p className="status">No pudimos validar el pago automáticamente. Revisa el estado e intenta nuevamente.</p>
         ) : null}
         <div className="cta-row">
           {shouldShowLogin ? (
             <Link className="cta-link" href="/login">
-              Iniciar sesion
+              Iniciar sesión
             </Link>
           ) : null}
           <Link className="cta-link" href="/profile">
@@ -108,3 +108,6 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
     </section>
   );
 }
+
+
+

@@ -72,7 +72,7 @@ export function SessionBadge({ initialData }: { initialData: SessionBadgeData })
     return (
       <div className="session-badge session-badge-loggedout">
         <Link className="nav-link session-login-btn" href="/login">
-          Iniciar sesion / Registro
+          Iniciar sesión / Registro
         </Link>
       </div>
     );
@@ -82,20 +82,17 @@ export function SessionBadge({ initialData }: { initialData: SessionBadgeData })
 
   return (
     <div className="session-badge">
-      {user.photoDataUrl ? (
-        <img className="session-avatar" src={user.photoDataUrl} alt={`Foto de ${user.name}`} />
-      ) : (
-        <span className="session-avatar session-avatar-fallback" aria-hidden="true">
-          {`${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || (user.name?.[0] ?? 'U')}
-        </span>
-      )}
+      <span className="session-avatar session-avatar-fallback" aria-hidden="true">
+        {`${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || (user.name?.[0] ?? 'U')}
+      </span>
       <Link className="session-user-text" href="/profile" title="Ir a mi perfil">
         <strong>{user.name}</strong>
         <span>{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
       </Link>
-      <button className="nav-link session-logout-btn" type="button" onClick={logout} disabled={loggingOut} title="Cerrar sesion">
+      <button className="nav-link session-logout-btn" type="button" onClick={logout} disabled={loggingOut} title="Cerrar sesión">
         {loggingOut ? 'Saliendo...' : 'Salir'}
       </button>
     </div>
   );
 }
+

@@ -8,7 +8,7 @@ function initials(row: LeaderboardRow) {
 
 export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
   if (!rows.length) {
-    return <div className="panel">Todavia no hay participantes (el administrador no se muestra en la tabla).</div>;
+    return <div className="panel">Todavia no hay participantes.</div>;
   }
 
   return (
@@ -21,8 +21,6 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
             <th>Puntos</th>
             <th>Exactos</th>
             <th>Ganador/Empate</th>
-            <th>Pronosticos puntuados</th>
-            <th>Total cargados</th>
           </tr>
         </thead>
         <tbody>
@@ -31,13 +29,9 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
               <td>{index + 1}</td>
               <td>
                 <div className="leader-user-cell">
-                  {row.photoDataUrl ? (
-                    <img className="avatar-preview avatar-preview-xs" src={row.photoDataUrl} alt={`Foto de ${row.userName}`} />
-                  ) : (
-                    <span className="session-avatar session-avatar-fallback avatar-preview-xs" aria-hidden="true">
-                      {initials(row)}
-                    </span>
-                  )}
+                  <span className="session-avatar session-avatar-fallback avatar-preview-xs" aria-hidden="true">
+                    {initials(row)}
+                  </span>
                   <div>
                     <strong>{`${row.firstName} ${row.lastName}`.trim() || row.userName}</strong>
                   </div>
@@ -46,8 +40,6 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
               <td>{row.totalPoints}</td>
               <td>{row.exactHits}</td>
               <td>{row.outcomeHits}</td>
-              <td>{row.scoredPredictions}</td>
-              <td>{row.totalPredictions}</td>
             </tr>
           ))}
         </tbody>
@@ -55,3 +47,4 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
     </div>
   );
 }
+

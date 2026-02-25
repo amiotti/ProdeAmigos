@@ -1,7 +1,7 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 
 const SESSION_COOKIE = 'prode_session';
-const SESSION_TTL_DAYS = 30;
+const SESSION_IDLE_TTL_MINUTES = 15;
 
 function secret() {
   return process.env.PRODE_SESSION_SECRET || process.env.INSTANTDB_ADMIN_TOKEN || 'dev-secret-change-me';
@@ -43,7 +43,7 @@ type SessionPayload = {
 };
 
 export function signSession(payload: Omit<SessionPayload, 'exp'> & { exp?: number }) {
-  const exp = payload.exp ?? Date.now() + SESSION_TTL_DAYS * 24 * 60 * 60 * 1000;
+  const exp = payload.exp ?? Date.now() + SESSION_IDLE_TTL_MINUTES * 60 * 1000;
   const body = b64url(JSON.stringify({ userId: payload.userId, role: payload.role, exp }));
   const sig = b64url(createHmac('sha256', secret()).update(body).digest());
   return `${body}.${sig}`;
@@ -78,6 +78,10 @@ export function getSessionCookieOptions() {
     sameSite: 'lax' as const,
     secure: process.env.NODE_ENV === 'production',
     path: '/',
-    maxAge: SESSION_TTL_DAYS * 24 * 60 * 60,
   };
 }
+
+export function getSessionIdleTimeoutMs() {
+  return SESSION_IDLE_TTL_MINUTES * 60 * 1000;
+}
+

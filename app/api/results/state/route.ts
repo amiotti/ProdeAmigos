@@ -11,3 +11,4 @@ export async function GET() {
   const state = await getResultsScreenState(token);
   return NextResponse.json(state);
 }
+

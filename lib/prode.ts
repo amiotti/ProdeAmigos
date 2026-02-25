@@ -14,14 +14,21 @@ export function calculatePredictionPoints(
   const predictedScore: Score = { home: prediction.homeGoals, away: prediction.awayGoals };
 
   if (predictedScore.home === official.home && predictedScore.away === official.away) {
-    return { points: pointsConfig.exactScore, exactHit: true, outcomeHit: false };
+    return { points: pointsConfig.exactScore, exactHit: true, outcomeHit: false, sideGoalsHit: true };
   }
 
-  if (outcome(predictedScore) === outcome(official)) {
-    return { points: pointsConfig.correctOutcome, exactHit: false, outcomeHit: true };
+  const outcomeHit = outcome(predictedScore) === outcome(official);
+  const sideGoalsHit = predictedScore.home === official.home || predictedScore.away === official.away;
+  let points = 0;
+
+  if (outcomeHit) {
+    points += pointsConfig.correctOutcome;
+  }
+  if (sideGoalsHit) {
+    points += 5;
   }
 
-  return { points: 0, exactHit: false, outcomeHit: false };
+  return { points, exactHit: false, outcomeHit, sideGoalsHit };
 }
 
 export function computeLeaderboard(db: ProdeDB): LeaderboardRow[] {
@@ -35,7 +42,6 @@ export function computeLeaderboard(db: ProdeDB): LeaderboardRow[] {
       firstName: user.firstName,
       lastName: user.lastName,
       userName: user.name,
-      photoDataUrl: user.photoDataUrl ?? null,
       totalPoints: 0,
       exactHits: 0,
       outcomeHits: 0,
@@ -70,3 +76,4 @@ export function computeLeaderboard(db: ProdeDB): LeaderboardRow[] {
 
   return rows;
 }
+

@@ -13,10 +13,10 @@ export async function POST() {
     const user = await getUserFromSessionToken(token);
 
     if (!user) {
-      return NextResponse.json({ ok: false, error: 'Debes iniciar sesion para generar el pago' }, { status: 401 });
+      return NextResponse.json({ ok: false, error: 'Debes iniciar sesión para generar el pago' }, { status: 401 });
     }
     if (user.role === 'admin') {
-      return NextResponse.json({ ok: false, error: 'El administrador no requiere pago de inscripcion' }, { status: 400 });
+      return NextResponse.json({ ok: false, error: 'El administrador no requiere pago de inscripción' }, { status: 400 });
     }
 
     const result = await createGalioRegistrationPaymentLink({
@@ -31,4 +31,6 @@ export async function POST() {
     return NextResponse.json({ ok: false, error: message }, { status: 400 });
   }
 }
+
+
 
