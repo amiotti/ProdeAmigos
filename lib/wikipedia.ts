@@ -1,4 +1,4 @@
-import { getTeamInfo, getWikipediaTitleForTeam } from '@/lib/worldcup26';
+import { getTeamInfo } from '@/lib/worldcup26';
 
 type WikiSummary = {
   extract: string;
@@ -32,8 +32,6 @@ function buildWikipediaTitleCandidates(teamName: string) {
   const normalized = normalizeSpanishTeamNameForWikipedia(canonical);
   const candidates = new Set<string>();
 
-  candidates.add(getWikipediaTitleForTeam(canonical));
-
   if (normalized === 'Estados Unidos') {
     candidates.add('Selección de fútbol de los Estados Unidos');
   } else if (normalized === 'Arabia Saudita') {
@@ -45,6 +43,7 @@ function buildWikipediaTitleCandidates(teamName: string) {
     candidates.add(`Selección de fútbol de ${normalized}`);
   }
 
+  candidates.add(`${normalized} (selección de fútbol)`);
   return [...candidates];
 }
 
@@ -76,10 +75,7 @@ async function fetchSummaryByTitle(title: string): Promise<WikiSummary | null> {
 
 async function searchWikipediaTeamPage(teamName: string): Promise<string | null> {
   const normalized = normalizeSpanishTeamNameForWikipedia(teamName);
-  const queries = [
-    `"Selección de fútbol de ${normalized}"`,
-    `${normalized} selección de fútbol`,
-  ];
+  const queries = [`"Selección de fútbol de ${normalized}"`, `${normalized} selección de fútbol`];
 
   for (const q of queries) {
     const url =

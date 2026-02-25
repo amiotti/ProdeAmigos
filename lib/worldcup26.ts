@@ -1,4 +1,4 @@
-import officialFixtureRaw from '@/lib/official-fixture-2026.json';
+﻿import officialFixtureRaw from '@/lib/official-fixture-2026.json';
 import type { Group, Match } from '@/lib/types';
 
 export type TeamInfo = {
@@ -14,11 +14,11 @@ export type TeamInfo = {
 };
 
 function fixMojibakeText(value: string): string {
-  if (!value || !/[ÃÂï]/.test(value)) return value;
+  if (!value || !/[ÃƒÃ‚Ã¯]/.test(value)) return value;
   try {
     const bytes = Uint8Array.from([...value].map((ch) => ch.charCodeAt(0) & 0xff));
     const decoded = new TextDecoder('utf-8').decode(bytes);
-    return /�/.test(decoded) ? value : decoded;
+    return /ï¿½/.test(decoded) ? value : decoded;
   } catch {
     return value;
   }
@@ -56,7 +56,7 @@ function applySpanishAccents(value: string): string {
     [/\bdefinicion\b/g, 'definición'],
     [/\bTodavia\b/g, 'Todavía'],
     [/\btodavia\b/g, 'todavía'],
-    [/\bJapón\b/g, 'Japón'],
+    [/\bJapon\b/g, 'Japón'],
   ];
 
   for (const [pattern, replacement] of replacements) {
@@ -64,53 +64,52 @@ function applySpanishAccents(value: string): string {
   }
   return text;
 }
-
 function normalizeSpanishDisplayText(value: string): string {
   return applySpanishAccents(fixMojibakeText(value));
 }
 
 const TEAM_WIKIPEDIA_TITLE_OVERRIDES: Record<string, string> = {
-  'Arabia Saudita': 'SelecciÃ³n_de_fÃºtbol_de_Arabia_Saudita',
-  Argelia: 'SelecciÃ³n_de_fÃºtbol_de_Argelia',
-  Argentina: 'SelecciÃ³n_de_fÃºtbol_de_Argentina',
-  Australia: 'SelecciÃ³n_de_fÃºtbol_de_Australia',
-  Austria: 'SelecciÃ³n_de_fÃºtbol_de_Austria',
-  Belgica: 'SelecciÃ³n_de_fÃºtbol_de_BÃ©lgica',
-  Brasil: 'SelecciÃ³n_de_fÃºtbol_de_Brasil',
-  Canada: 'SelecciÃ³n_de_fÃºtbol_de_CanadÃ¡',
-  'Cabo Verde': 'SelecciÃ³n_de_fÃºtbol_de_Cabo_Verde',
-  Colombia: 'SelecciÃ³n_de_fÃºtbol_de_Colombia',
-  'Corea del Sur': 'SelecciÃ³n_de_fÃºtbol_de_Corea_del_Sur',
-  'Costa de Marfil': 'SelecciÃ³n_de_fÃºtbol_de_Costa_de_Marfil',
-  Croacia: 'SelecciÃ³n_de_fÃºtbol_de_Croacia',
-  Curazao: 'SelecciÃ³n_de_fÃºtbol_de_Curazao',
-  Ecuador: 'SelecciÃ³n_de_fÃºtbol_de_Ecuador',
-  Egipto: 'SelecciÃ³n_de_fÃºtbol_de_Egipto',
-  Inglaterra: 'SelecciÃ³n_de_fÃºtbol_de_Inglaterra',
-  Espana: 'SelecciÃ³n_de_fÃºtbol_de_EspaÃ±a',
-  'Estados Unidos': 'SelecciÃ³n_de_fÃºtbol_de_los_Estados_Unidos',
-  Escocia: 'SelecciÃ³n_de_fÃºtbol_de_Escocia',
-  Francia: 'SelecciÃ³n_de_fÃºtbol_de_Francia',
-  Ghana: 'SelecciÃ³n_de_fÃºtbol_de_Ghana',
-  Haiti: 'SelecciÃ³n_de_fÃºtbol_de_HaitÃ­',
-  Iran: 'SelecciÃ³n_de_fÃºtbol_de_IrÃ¡n',
-  Japon: 'SelecciÃ³n_de_fÃºtbol_de_JapÃ³n',
-  Jordania: 'SelecciÃ³n_de_fÃºtbol_de_Jordania',
-  Marruecos: 'SelecciÃ³n_de_fÃºtbol_de_Marruecos',
-  Mexico: 'SelecciÃ³n_de_fÃºtbol_de_MÃ©xico',
-  'Nueva Zelanda': 'SelecciÃ³n_de_fÃºtbol_de_Nueva_Zelanda',
-  Noruega: 'SelecciÃ³n_de_fÃºtbol_de_Noruega',
-  Panama: 'SelecciÃ³n_de_fÃºtbol_de_PanamÃ¡',
-  Paraguay: 'SelecciÃ³n_de_fÃºtbol_de_Paraguay',
-  'Paises Bajos': 'SelecciÃ³n_de_fÃºtbol_de_los_PaÃ­ses_Bajos',
-  Portugal: 'SelecciÃ³n_de_fÃºtbol_de_Portugal',
-  Qatar: 'SelecciÃ³n_de_fÃºtbol_de_Catar',
-  Senegal: 'SelecciÃ³n_de_fÃºtbol_de_Senegal',
-  Sudafrica: 'SelecciÃ³n_de_fÃºtbol_de_SudÃ¡frica',
-  Suiza: 'SelecciÃ³n_de_fÃºtbol_de_Suiza',
-  Tunez: 'SelecciÃ³n_de_fÃºtbol_de_TÃºnez',
-  Uruguay: 'SelecciÃ³n_de_fÃºtbol_de_Uruguay',
-  Uzbekistan: 'SelecciÃ³n_de_fÃºtbol_de_UzbekistÃ¡n',
+  'Arabia Saudita': 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Arabia_Saudita',
+  Argelia: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Argelia',
+  Argentina: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Argentina',
+  Australia: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Australia',
+  Austria: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Austria',
+  Belgica: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_BÃƒÂ©lgica',
+  Brasil: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Brasil',
+  Canada: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_CanadÃƒÂ¡',
+  'Cabo Verde': 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Cabo_Verde',
+  Colombia: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Colombia',
+  'Corea del Sur': 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Corea_del_Sur',
+  'Costa de Marfil': 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Costa_de_Marfil',
+  Croacia: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Croacia',
+  Curazao: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Curazao',
+  Ecuador: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Ecuador',
+  Egipto: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Egipto',
+  Inglaterra: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Inglaterra',
+  Espana: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_EspaÃƒÂ±a',
+  'Estados Unidos': 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_los_Estados_Unidos',
+  Escocia: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Escocia',
+  Francia: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Francia',
+  Ghana: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Ghana',
+  Haiti: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_HaitÃƒÂ­',
+  Iran: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_IrÃƒÂ¡n',
+  Japon: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_JapÃƒÂ³n',
+  Jordania: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Jordania',
+  Marruecos: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Marruecos',
+  Mexico: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_MÃƒÂ©xico',
+  'Nueva Zelanda': 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Nueva_Zelanda',
+  Noruega: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Noruega',
+  Panama: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_PanamÃƒÂ¡',
+  Paraguay: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Paraguay',
+  'Paises Bajos': 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_los_PaÃƒÂ­ses_Bajos',
+  Portugal: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Portugal',
+  Qatar: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Catar',
+  Senegal: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Senegal',
+  Sudafrica: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_SudÃƒÂ¡frica',
+  Suiza: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Suiza',
+  Tunez: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_TÃƒÂºnez',
+  Uruguay: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_Uruguay',
+  Uzbekistan: 'SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_UzbekistÃƒÂ¡n',
 };
 
 type CalendarEvent = {
@@ -343,7 +342,7 @@ const TEAM_CATALOG: TeamInfo[] = [
     flag: 'NL',
     confederation: 'UEFA',
     fifaStrength: 1900,
-    shortDescription: 'Selección europea de posesión, técnica y alta intensidad.',
+    shortDescription: 'SelecciÃ³n europea de posesiÃ³n, tÃ©cnica y alta intensidad.',
   },
   {
     id: 'japon',
@@ -416,7 +415,7 @@ const TEAM_CATALOG: TeamInfo[] = [
     flag: 'ES',
     confederation: 'UEFA',
     fifaStrength: 1920,
-    shortDescription: 'Posesión y presión alta, siempre candidata.',
+    shortDescription: 'PosesiÃ³n y presiÃ³n alta, siempre candidata.',
   },
   {
     id: 'uruguay',
@@ -931,7 +930,7 @@ export function getWikipediaTitleForTeam(teamName: string): string {
   const canonical = getTeamInfo(teamName).name;
   const override = TEAM_WIKIPEDIA_TITLE_OVERRIDES[canonical];
   if (override) return override;
-  return fixMojibakeText(`SelecciÃƒÂ³n_de_fÃƒÂºtbol_de_${canonical.replace(/\s+/g, '_')}`);
+  return fixMojibakeText(`SelecciÃƒÆ’Ã‚Â³n_de_fÃƒÆ’Ã‚Âºtbol_de_${canonical.replace(/\s+/g, '_')}`);
 }
 
 export function buildTeamProdeSummary(teamName: string, groupId?: string) {
@@ -939,7 +938,7 @@ export function buildTeamProdeSummary(teamName: string, groupId?: string) {
   const base = `${team.name} integra ${team.confederation}${groupId ? ` y compite en el Grupo ${groupId}` : ''} del Mundial 2026.`;
 
   if (team.isPlaceholder) {
-    return fixMojibakeText(`${base} Esta plaza todavÃ­a no tiene seleccionado confirmado porque depende del repechaje.`);
+    return fixMojibakeText(`${base} Esta plaza todavÃƒÂ­a no tiene seleccionado confirmado porque depende del repechaje.`);
   }
 
   let tier = 'equipo competitivo';
@@ -1008,11 +1007,82 @@ export function buildTeamSportFacts(teamName: string, groupTeams?: string[]) {
   return facts.map(normalizeSpanishDisplayText);
 }
 
+type TeamEditorialNotes = {
+  summary: string;
+  relevantFact: string;
+  curiousFact: string;
+};
+
+const TEAM_CURIOUS_FACT_OVERRIDES: Record<string, string> = {
+  Argentina: 'Dato curioso: llega como campeona vigente, por lo que cada rival suele jugarle con un plus competitivo.',
+  Brasil: 'Dato curioso: es la Ãºnica selecciÃ³n que participÃ³ en todos los Mundiales de la historia.',
+  Alemania: 'Dato curioso: suele rendir mejor cuanto mÃ¡s avanza el torneo, por profundidad y recambio.',
+  Francia: 'Dato curioso: en torneos largos, su plantel suele permitir rotaciones sin perder demasiado nivel.',
+  Inglaterra: 'Dato curioso: suele generar muchÃ­simo debate previo por la expectativa mediÃ¡tica que la acompaÃ±a.',
+  Mexico: 'Dato curioso: como anfitriÃ³n, el factor local puede influir mucho en ritmo e intensidad en fase de grupos.',
+  Canada: 'Dato curioso: ser anfitriÃ³n suele elevar la energÃ­a del grupo y el apoyo del pÃºblico en partidos clave.',
+  'Estados Unidos':
+    'Dato curioso: jugando como anfitriÃ³n, puede beneficiarse de logÃ­stica y adaptaciÃ³n, algo relevante en un torneo largo.',
+  Japon: 'Dato curioso: sus partidos suelen ser tÃ¡cticamente muy ordenados, ideales para mirar detalles antes de predecir.',
+  Marruecos: 'Dato curioso: su crecimiento reciente la volviÃ³ una selecciÃ³n que muchos rivales ya no subestiman.',
+  Uruguay: 'Dato curioso: su tradiciÃ³n competitiva hace que incluso partidos cerrados sean difÃ­ciles de pronosticar.',
+  Croacia: 'Dato curioso: suele competir muy bien en escenarios de alta presiÃ³n, incluso frente a favoritos.',
+};
+
+export function buildTeamEditorialNotes(teamName: string, groupId?: string, groupTeams?: string[]): TeamEditorialNotes {
+  const team = getTeamInfo(teamName);
+  const sportFacts = buildTeamSportFacts(teamName, groupTeams);
+
+  if (team.isPlaceholder) {
+    return {
+      summary: normalizeSpanishDisplayText(
+        `${team.name} corresponde a un cupo pendiente de repechaje. La referencia deportiva puede cambiar cuando se defina el clasificado, por eso conviene revisar esta ficha mÃ¡s cerca del inicio del grupo ${groupId ?? '-'}.`,
+      ),
+      relevantFact: normalizeSpanishDisplayText(
+        'Dato relevante: al no estar definida la selecciÃ³n, la proyecciÃ³n de rendimiento y probabilidades de la app es provisional.',
+      ),
+      curiousFact: normalizeSpanishDisplayText(
+        'Dato curioso: estos cupos suelen generar desvÃ­os en el PRODE porque muchos pronÃ³sticos se cargan antes de conocerse el rival definitivo.',
+      ),
+    };
+  }
+
+  const tierLabel =
+    team.fifaStrength >= 1930
+      ? 'favorito fuerte'
+      : team.fifaStrength >= 1860
+        ? 'candidato serio'
+        : team.fifaStrength >= 1780
+          ? 'selecciÃ³n competitiva'
+          : 'selecciÃ³n de perfil impredecible';
+
+  const hostTag =
+    ['Argentina', 'Brasil', 'Francia', 'Inglaterra', 'Alemania', 'Espana', 'Portugal'].includes(team.name)
+      ? 'Tiene plantel con aspiraciones altas en un torneo largo.'
+      : ['Mexico', 'Canada', 'Estados Unidos'].includes(team.name)
+        ? 'AdemÃ¡s, juega con contexto de anfitriÃ³n, un factor que puede influir en la fase de grupos.'
+        : '';
+
+  const summary = normalizeSpanishDisplayText(
+    `${team.name} es una ${tierLabel} de ${team.confederation}${groupId ? ` dentro del Grupo ${groupId}` : ''}. ${sportFacts[0] ?? ''} ${hostTag}`.trim(),
+  );
+
+  const relevantFact = normalizeSpanishDisplayText(
+    `Dato relevante: ${sportFacts[2] ?? sportFacts[1] ?? `la app la valora con Ã­ndice ${team.fifaStrength} para estimar probabilidades prepartido.`}`,
+  );
+
+  const curiousFact = normalizeSpanishDisplayText(
+    TEAM_CURIOUS_FACT_OVERRIDES[team.name] ??
+      `Dato curioso: las selecciones de ${team.confederation} suelen mostrar patrones de juego distintos entre sÃ­, asÃ­ que mirar rivales y contexto del grupo mejora mucho el pronÃ³stico.`,
+  );
+
+  return { summary, relevantFact, curiousFact };
+}
+
 export function getAllTeams(): TeamInfo[] {
   return TEAM_CATALOG
     .map((team) => ({
       ...team,
-      name: normalizeSpanishDisplayText(team.name),
       shortDescription: normalizeSpanishDisplayText(team.shortDescription),
       notes: team.notes ? normalizeSpanishDisplayText(team.notes) : undefined,
     }))
@@ -1227,5 +1297,6 @@ export function buildCalendarFixtures(
 
   return fixtures.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 }
+
 
 

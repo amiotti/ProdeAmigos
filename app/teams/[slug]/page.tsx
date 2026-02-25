@@ -5,7 +5,13 @@ import { TeamName } from '@/components/team-name';
 import { getState } from '@/lib/db';
 import { formatDateTimeArgentina } from '@/lib/datetime';
 import { getTeamWikipediaSummary } from '@/lib/wikipedia';
-import { buildTeamProdeSummary, buildTeamSportFacts, getAllTeams, getFifaTeamNewsUrl } from '@/lib/worldcup26';
+import {
+  buildTeamEditorialNotes,
+  buildTeamProdeSummary,
+  buildTeamSportFacts,
+  getAllTeams,
+  getFifaTeamNewsUrl,
+} from '@/lib/worldcup26';
 
 type TeamDetailPageProps = {
   params: {
@@ -29,6 +35,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
   const wiki = await getTeamWikipediaSummary(team.name);
   const profileSummary = buildTeamProdeSummary(team.name, group?.id);
   const sportFacts = buildTeamSportFacts(team.name, group?.teams);
+  const editorial = buildTeamEditorialNotes(team.name, group?.id, group?.teams);
   const teamNewsUrl = getFifaTeamNewsUrl(team.name);
 
   return (
@@ -94,22 +101,23 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
       </div>
 
       <div className="panel stack-md">
-        <h3>Resumen enciclopédico (secundario)</h3>
+        <h3>Resumen del equipo</h3>
+        <p className="muted">{wiki?.extract ?? editorial.summary}</p>
+        <p className="muted">
+          <strong>Dato relevante:</strong> {editorial.relevantFact.replace(/^Dato relevante:\s*/i, '')}
+        </p>
+        <p className="muted">
+          <strong>Dato curioso:</strong> {editorial.curiousFact.replace(/^Dato curioso:\s*/i, '')}
+        </p>
         {wiki ? (
-          <>
-            <p className="muted">{wiki.extract}</p>
-            <p className="muted">
-              Fuente enciclopédica:{' '}
-              <a className="inline-link" href={wiki.pageUrl} target="_blank" rel="noreferrer">
-                Wikipedia
-              </a>
-            </p>
-          </>
-        ) : (
           <p className="muted">
-            No se pudo cargar un resumen enciclopédico en este momento. Se muestra igualmente la información del
-            torneo y del PRODE.
+            Fuente enciclopédica:{' '}
+            <a className="inline-link" href={wiki.pageUrl} target="_blank" rel="noreferrer">
+              Wikipedia
+            </a>
           </p>
+        ) : (
+          <p className="muted">No se pudo cargar Wikipedia en este momento; se muestra una síntesis deportiva local.</p>
         )}
       </div>
 
@@ -117,15 +125,15 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
         <h3>Noticias</h3>
         {teamNewsUrl ? (
           <p className="muted">
-            Podes seguir las ultimas noticias de este equipo{' '}
+            Podés seguir las últimas noticias de este equipo{' '}
             <a className="inline-link" href={teamNewsUrl} target="_blank" rel="noreferrer">
-              aqui
+              aquí
             </a>
             .
           </p>
         ) : (
           <p className="muted">
-            Esta seleccion aun no tiene una pagina oficial de noticias disponible porque su cupo todavia no esta
+            Esta selección aún no tiene una página oficial de noticias disponible porque su cupo todavía no está
             definido.
           </p>
         )}
@@ -178,3 +186,4 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
     </section>
   );
 }
+
