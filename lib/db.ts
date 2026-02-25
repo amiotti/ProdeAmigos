@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+﻿import { randomUUID } from 'node:crypto';
 
 import { hashPassword, verifyPassword, verifySession } from '@/lib/auth';
 import { getInstantAdminDb, tx } from '@/lib/instant';
@@ -107,6 +107,10 @@ function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
+function sanitizeName(name: string) {
+  return name.trim().replace(/\s+/g, ' ').slice(0, 80);
+}
+
 function publicUser(doc: InstantUserDoc): User {
   return {
     id: doc.id,
@@ -125,7 +129,7 @@ function publicUser(doc: InstantUserDoc): User {
 }
 
 function sanitizePhone(phone: string) {
-  return phone.trim();
+  return phone.trim().replace(/\s+/g, ' ').slice(0, 32);
 }
 
 function validateRegistrationInput(input: {
@@ -135,11 +139,19 @@ function validateRegistrationInput(input: {
   phone: string;
   password: string;
 }) {
-  if (!input.firstName.trim()) throw new Error('El nombre es obligatorio');
-  if (!input.lastName.trim()) throw new Error('El apellido es obligatorio');
-  if (!input.email.trim()) throw new Error('El email es obligatorio');
-  if (!input.phone.trim()) throw new Error('El teléfono es obligatorio');
-  if (!input.password || input.password.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres');
+  const firstName = sanitizeName(input.firstName);
+  const lastName = sanitizeName(input.lastName);
+  const email = normalizeEmail(input.email);
+  const phone = sanitizePhone(input.phone);
+  if (!firstName) throw new Error('El nombre es obligatorio');
+  if (!lastName) throw new Error('El apellido es obligatorio');
+  if (!email) throw new Error('El email es obligatorio');
+  if (!phone) throw new Error('El telefono es obligatorio');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('El email no es valido');
+  if (email.length > 120) throw new Error('El email es demasiado largo');
+  if (!/^[0-9+()\-\s]{6,32}$/.test(phone)) throw new Error('El telefono no es valido');
+  if (!input.password || input.password.length < 8) throw new Error('La contrasena debe tener al menos 8 caracteres');
+  if (input.password.length > 128) throw new Error('La contrasena es demasiado larga');
 }
 
 async function queryAllInstant() {
@@ -481,8 +493,8 @@ export async function createUser(input: {
 
   const id = randomUUID();
   const ts = nowIso();
-  const firstName = input.firstName.trim();
-  const lastName = input.lastName.trim();
+  const firstName = sanitizeName(input.firstName);
+  const lastName = sanitizeName(input.lastName);
   const phone = sanitizePhone(input.phone);
 
   const doc: InstantUserDoc = {
@@ -540,12 +552,13 @@ export async function updateUserProfile(
   const current = users.find((u) => u.id === userId);
   if (!current) throw new Error('Usuario no encontrado');
 
-  const firstName = (input.firstName ?? current.firstName).trim();
-  const lastName = (input.lastName ?? current.lastName).trim();
+  const firstName = sanitizeName(input.firstName ?? current.firstName);
+  const lastName = sanitizeName(input.lastName ?? current.lastName);
   const phone = sanitizePhone(input.phone ?? current.phone);
   if (!firstName) throw new Error('El nombre es obligatorio');
   if (!lastName) throw new Error('El apellido es obligatorio');
-  if (!phone) throw new Error('El teléfono es obligatorio');
+  if (!phone) throw new Error('El tel?fono es obligatorio');
+  if (!/^[0-9+()\-\s]{6,32}$/.test(phone)) throw new Error('El telefono no es valido');
 
   const patch: Partial<InstantUserDoc> = {
     firstName,
@@ -556,7 +569,8 @@ export async function updateUserProfile(
   };
 
   if (typeof input.password === 'string' && input.password.length > 0) {
-    if (input.password.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres');
+    if (input.password.length < 8) throw new Error('La contrasena debe tener al menos 8 caracteres');
+    if (input.password.length > 128) throw new Error('La contrasena es demasiado larga');
     patch.passwordHash = hashPassword(input.password);
   }
 
@@ -570,6 +584,8 @@ export async function savePredictions(
   items: Array<{ matchId: string; homeGoals: number; awayGoals: number }>,
 ) {
   await ensureBaseData();
+  if (!Array.isArray(items)) throw new Error('Formato de predicciones inválido');
+  if (items.length > 80) throw new Error('Demasiadas predicciones en una sola solicitud');
   const userDoc = await queryUserByIdOnly(userId);
   const user = userDoc ? publicUser(userDoc) : null;
   if (!user) throw new Error('Usuario no encontrado');
@@ -593,8 +609,8 @@ export async function savePredictions(
   for (const item of items) {
     const match = matchById.get(item.matchId);
     if (!match) continue;
-    if (!Number.isInteger(item.homeGoals) || item.homeGoals < 0) continue;
-    if (!Number.isInteger(item.awayGoals) || item.awayGoals < 0) continue;
+    if (!Number.isInteger(item.homeGoals) || item.homeGoals < 0 || item.homeGoals > 30) continue;
+    if (!Number.isInteger(item.awayGoals) || item.awayGoals < 0 || item.awayGoals > 30) continue;
 
     if (!isPredictionWindowOpen(match.kickoffAt, nowMs)) {
       lockedMatches.push(item.matchId);
@@ -626,6 +642,8 @@ export async function savePredictions(
 
 export async function saveOfficialResults(items: Array<{ matchId: string; home: number; away: number }>) {
   await ensureBaseData();
+  if (!Array.isArray(items)) throw new Error('Formato de resultados inválido');
+  if (items.length > 120) throw new Error('Demasiados resultados en una sola solicitud');
   const base = getSeedDbTemplate();
   const validMatchIds = new Set(base.matches.map((m) => m.id));
   const current = await queryAllInstant();
@@ -635,8 +653,8 @@ export async function saveOfficialResults(items: Array<{ matchId: string; home: 
 
   for (const item of items) {
     if (!validMatchIds.has(item.matchId)) continue;
-    if (!Number.isInteger(item.home) || item.home < 0) continue;
-    if (!Number.isInteger(item.away) || item.away < 0) continue;
+    if (!Number.isInteger(item.home) || item.home < 0 || item.home > 30) continue;
+    if (!Number.isInteger(item.away) || item.away < 0 || item.away > 30) continue;
 
     const existing = byMatchId.get(item.matchId);
     const id = existing?.id ?? randomUUID();
@@ -840,6 +858,7 @@ export async function getPredictionsScreenState(viewerToken?: string | null): Pr
     },
   };
 }
+
 
 
 

@@ -1,10 +1,12 @@
-import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 import { getSessionCookieName } from '@/lib/auth';
+import { assertSameOriginForMutation, noStoreJson } from '@/lib/security';
 
-export async function POST() {
+export async function POST(request: Request) {
+  const originError = assertSameOriginForMutation(request);
+  if (originError) return originError;
+
   cookies().delete(getSessionCookieName());
-  return NextResponse.json({ ok: true });
+  return noStoreJson({ ok: true });
 }
-

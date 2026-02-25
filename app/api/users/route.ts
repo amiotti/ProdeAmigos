@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 import { getSessionCookieName } from '@/lib/auth';
 import { adminDeleteUser, createUser, getUserFromSessionToken, listUsers } from '@/lib/db';
+import { assertSameOriginForMutation, noStoreJson } from '@/lib/security';
 
 async function requireAdmin() {
   const token = cookies().get(getSessionCookieName())?.value ?? null;
@@ -13,30 +13,40 @@ async function requireAdmin() {
 
 export async function GET() {
   const admin = await requireAdmin();
-  if (!admin) return NextResponse.json({ ok: false, error: 'Solo admin' }, { status: 403 });
+  if (!admin) return noStoreJson({ ok: false, error: 'Solo admin' }, { status: 403 });
 
   const users = await listUsers();
-  return NextResponse.json({ ok: true, users });
+  return noStoreJson({ ok: true, users });
 }
 
 export async function DELETE(request: Request) {
   try {
+    const originError = assertSameOriginForMutation(request);
+    if (originError) return originError;
+
     const admin = await requireAdmin();
-    if (!admin) return NextResponse.json({ ok: false, error: 'Solo admin' }, { status: 403 });
+    if (!admin) return noStoreJson({ ok: false, error: 'Solo admin' }, { status: 403 });
 
     const body = (await request.json()) as { userId?: string };
-    if (!body.userId) return NextResponse.json({ ok: false, error: 'Falta userId' }, { status: 400 });
-    await adminDeleteUser(body.userId);
+    if (!body.userId) return noStoreJson({ ok: false, error: 'Falta userId' }, { status: 400 });
+
+    await adminDeleteUser(String(body.userId));
     const users = await listUsers();
-    return NextResponse.json({ ok: true, users });
+    return noStoreJson({ ok: true, users });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'No se pudo eliminar el usuario';
-    return NextResponse.json({ ok: false, error: message }, { status: 400 });
+    return noStoreJson({ ok: false, error: message }, { status: 400 });
   }
 }
 
 export async function POST(request: Request) {
   try {
+    const originError = assertSameOriginForMutation(request);
+    if (originError) return originError;
+
+    const admin = await requireAdmin();
+    if (!admin) return noStoreJson({ ok: false, error: 'Solo admin' }, { status: 403 });
+
     const body = (await request.json()) as {
       firstName?: string;
       lastName?: string;
@@ -51,10 +61,9 @@ export async function POST(request: Request) {
       phone: body.phone ?? '',
       password: body.password ?? '',
     });
-    return NextResponse.json({ ok: true, user });
+    return noStoreJson({ ok: true, user }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'No se pudo registrar el usuario';
-    return NextResponse.json({ ok: false, error: message }, { status: 400 });
+    return noStoreJson({ ok: false, error: message }, { status: 400 });
   }
 }
-

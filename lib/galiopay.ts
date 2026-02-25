@@ -61,6 +61,18 @@ function getGalioConfig() {
   };
 }
 
+function registrationReferenceIdForUser(userId: string) {
+  return `prode-registration-${userId}`;
+}
+
+export function extractUserIdFromGalioRegistrationReferenceId(referenceId: string | null | undefined) {
+  const value = String(referenceId ?? '');
+  const prefix = 'prode-registration-';
+  if (!value.startsWith(prefix)) return null;
+  const userId = value.slice(prefix.length).trim();
+  return userId || null;
+}
+
 async function galioRequest<T>(path: string, init: RequestInit, withAuth = true): Promise<T> {
   const cfg = getGalioConfig();
   const response = await fetch(`${cfg.apiBase}${path}`, {
@@ -105,7 +117,7 @@ export async function createGalioRegistrationPaymentLink(input: {
   lastName?: string;
 }) {
   const cfg = getGalioConfig();
-  const referenceId = `prode-registration-${input.userId}`;
+  const referenceId = registrationReferenceIdForUser(input.userId);
   const payload: CreatePaymentLinkInput = {
     items: [
       {
@@ -140,5 +152,26 @@ export async function getGalioPayment(paymentId: string) {
 export function isGalioApprovedStatus(status: string | null | undefined) {
   const normalized = (status ?? '').trim().toLowerCase();
   return ['approved', 'paid', 'success', 'succeeded', 'completed'].includes(normalized);
+}
+
+export function isValidGalioRegistrationPaymentForUser(
+  payment: Partial<GalioPaymentDetails> | null | undefined,
+  userId: string,
+) {
+  if (!payment) return false;
+  if (!isGalioApprovedStatus(payment.status)) return false;
+
+  const cfg = getGalioConfig();
+  const referenceOk = String(payment.referenceId ?? '') === registrationReferenceIdForUser(userId);
+  const currencyOk = String(payment.currency ?? '').toUpperCase() === String(cfg.currencyId).toUpperCase();
+  const amountOk = Number(payment.amount) === Number(cfg.amount);
+
+  return referenceOk && currencyOk && amountOk;
+}
+
+export function getGalioWebhookAuthConfig() {
+  return {
+    secret: process.env.GALIOPAY_WEBHOOK_SECRET?.trim() || '',
+  };
 }
 

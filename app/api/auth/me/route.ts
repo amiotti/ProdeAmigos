@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 
 import { getSessionCookieName, getSessionCookieOptions, signSession } from '@/lib/auth';
 import { getUserFromSessionToken } from '@/lib/db';
+import { noStoreJson } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,15 +14,11 @@ export async function GET() {
   if (user) {
     cookieStore.set(getSessionCookieName(), signSession({ userId: user.id, role: user.role }), getSessionCookieOptions());
   }
-  return NextResponse.json({
+  return noStoreJson({
     ok: true,
     isAuthenticated: Boolean(user),
     user,
     isAdmin: user?.role === 'admin',
-  }, {
-    headers: {
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
-    },
   });
 }
 

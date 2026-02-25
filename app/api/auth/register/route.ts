@@ -1,11 +1,15 @@
-import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 import { getSessionCookieName, getSessionCookieOptions, signSession } from '@/lib/auth';
 import { createUser } from '@/lib/db';
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { assertSameOriginForMutation, noStoreJson } from '@/lib/security';
 
 export async function POST(request: Request) {
   try {
+    const originError = assertSameOriginForMutation(request);
+    if (originError) return originError;
+
     const body = (await request.json()) as {
       firstName?: string;
       lastName?: string;
@@ -13,6 +17,12 @@ export async function POST(request: Request) {
       phone?: string;
       password?: string;
     };
+
+    const ip = getClientIdentifier(request);
+    const ipRate = checkRateLimit(`auth:register:ip:${ip}`, { limit: 10, windowMs: 30 * 60 * 1000 });
+    if (!ipRate.ok) {
+      return noStoreJson({ ok: false, error: 'Demasiados registros desde este origen. Intenta más tarde.' }, { status: 429 });
+    }
 
     const user = await createUser({
       firstName: body.firstName ?? '',
@@ -25,11 +35,9 @@ export async function POST(request: Request) {
     const token = signSession({ userId: user.id, role: user.role });
     cookies().set(getSessionCookieName(), token, getSessionCookieOptions());
 
-    return NextResponse.json({ ok: true, user });
+    return noStoreJson({ ok: true, user }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'No se pudo registrar';
-    return NextResponse.json({ ok: false, error: message }, { status: 400 });
+    return noStoreJson({ ok: false, error: message }, { status: 400 });
   }
 }
-
-

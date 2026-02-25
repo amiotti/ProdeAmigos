@@ -3,19 +3,17 @@ import { cookies } from 'next/headers';
 
 import { getSessionCookieName } from '@/lib/auth';
 import { getUserFromSessionToken, markUserRegistrationPaymentApproved } from '@/lib/db';
-import { getGalioPayment, isGalioApprovedStatus } from '@/lib/galiopay';
+import { getGalioPayment, isGalioApprovedStatus, isValidGalioRegistrationPaymentForUser } from '@/lib/galiopay';
 
 type PaymentReturnPageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
 
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 function getText(status: string | undefined) {
-  if (status === 'success' || status === 'approved') {
-    return {
-      title: 'Pago aprobado',
-      description: 'La inscripción fue pagada correctamente. Ya puedes continuar en la app.',
-    };
-  }
   if (status === 'pending') {
     return {
       title: 'Pago pendiente',
@@ -25,7 +23,13 @@ function getText(status: string | undefined) {
   if (status === 'failure') {
     return {
       title: 'Pago no completado',
-      description: 'El pago fue cancelado o fallido. Puedes volver a registrarte o reintentar el checkout.',
+      description: 'El pago fue cancelado o fallido. Puedes volver a intentarlo.',
+    };
+  }
+  if (status === 'success' || status === 'approved') {
+    return {
+      title: 'Retorno de pago',
+      description: 'Se recibió la confirmación del checkout. Validaremos el pago con Galio antes de aprobar la inscripción.',
     };
   }
   return {
@@ -35,41 +39,35 @@ function getText(status: string | undefined) {
 }
 
 export default async function PaymentReturnPage({ searchParams }: PaymentReturnPageProps) {
-  const raw = searchParams?.status;
-  const status = Array.isArray(raw) ? raw[0] : raw;
-  const rawProvider = searchParams?.provider;
-  const provider = Array.isArray(rawProvider) ? rawProvider[0] : rawProvider;
-  const rawGalioPaymentId = searchParams?.galio_payment_id;
-  const galioPaymentId = Array.isArray(rawGalioPaymentId) ? rawGalioPaymentId[0] : rawGalioPaymentId;
+  const status = firstParam(searchParams?.status);
+  const provider = firstParam(searchParams?.provider);
+  const galioPaymentId = firstParam(searchParams?.galio_payment_id);
   const token = cookies().get(getSessionCookieName())?.value ?? null;
   const sessionUser = await getUserFromSessionToken(token);
+
   let approvedNow = false;
   let galioPaymentStatus: string | null = null;
   let galioPaymentFetchError = false;
+  let validatedPayment = false;
 
-  if (galioPaymentId) {
+  if (galioPaymentId && sessionUser && sessionUser.role !== 'admin') {
     try {
       const payment = await getGalioPayment(galioPaymentId);
       galioPaymentStatus = payment.status ?? null;
-    } catch (error) {
+      validatedPayment = isValidGalioRegistrationPaymentForUser(payment, sessionUser.id);
+
+      if (validatedPayment) {
+        const before = sessionUser.registrationPaymentStatus;
+        const updated = await markUserRegistrationPaymentApproved(sessionUser.id, galioPaymentId);
+        approvedNow = before !== 'approved' && updated.registrationPaymentStatus === 'approved';
+      }
+    } catch {
       galioPaymentFetchError = true;
     }
   }
 
-  const approvalSignal = galioPaymentId
-    ? isGalioApprovedStatus(galioPaymentStatus)
-    : status === 'success' || status === 'approved';
-
-  if (approvalSignal && sessionUser && sessionUser.role !== 'admin') {
-    try {
-      const before = sessionUser.registrationPaymentStatus;
-      const updated = await markUserRegistrationPaymentApproved(sessionUser.id, galioPaymentId ?? null);
-      approvedNow = before !== 'approved' && updated.registrationPaymentStatus === 'approved';
-    } catch {
-      approvedNow = false;
-    }
-  }
-
+  const queryLooksApproved = status === 'success' || status === 'approved';
+  const officialApproved = validatedPayment && isGalioApprovedStatus(galioPaymentStatus);
   const text = getText(status);
   const receiptNumber = galioPaymentId ?? null;
   const shouldShowLogin = !sessionUser;
@@ -77,20 +75,39 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
   return (
     <section className="stack-lg">
       <div className="panel">
-        <h2>{text.title}</h2>
-        <p className="muted">{text.description}</p>
-        {approvedNow ? (
-          <p className="status">Pago marcado como aprobado en tu usuario (validado en retorno, sin webhook).</p>
-        ) : null}
-        {receiptNumber ? <p className="muted">N° de comprobante: <strong>{receiptNumber}</strong></p> : null}
-        {sessionUser && sessionUser.role !== 'admin' ? (
+        <h2>{officialApproved ? 'Pago aprobado' : text.title}</h2>
+        <p className="muted">
+          {officialApproved
+            ? 'La inscripción fue validada correctamente contra Galio Pay. Ya puedes continuar en la app.'
+            : text.description}
+        </p>
+
+        {approvedNow ? <p className="status">Pago aprobado y asociado a tu usuario.</p> : null}
+        {receiptNumber ? (
           <p className="muted">
-            Estado de inscripción actual: <strong>{approvedNow ? 'approved' : sessionUser.registrationPaymentStatus ?? 'pending'}</strong>
+            N° de comprobante: <strong>{receiptNumber}</strong>
           </p>
         ) : null}
-        {provider === 'galio' && galioPaymentFetchError ? (
-          <p className="status">No pudimos validar el pago automáticamente. Revisa el estado e intenta nuevamente.</p>
+
+        {sessionUser && sessionUser.role !== 'admin' ? (
+          <p className="muted">
+            Estado de inscripción actual:{' '}
+            <strong>
+              {officialApproved || sessionUser.registrationPaymentStatus === 'approved' ? 'approved' : sessionUser.registrationPaymentStatus ?? 'pending'}
+            </strong>
+          </p>
         ) : null}
+
+        {provider === 'galio' && queryLooksApproved && !officialApproved ? (
+          <p className="status">
+            El retorno indica pago exitoso, pero la inscripción no se aprobará hasta validar el pago en Galio Pay.
+          </p>
+        ) : null}
+
+        {provider === 'galio' && galioPaymentFetchError ? (
+          <p className="status">No pudimos validar el pago automáticamente con Galio. Revisa el estado e intenta nuevamente.</p>
+        ) : null}
+
         <div className="cta-row">
           {shouldShowLogin ? (
             <Link className="cta-link" href="/login">
@@ -108,6 +125,3 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
     </section>
   );
 }
-
-
-

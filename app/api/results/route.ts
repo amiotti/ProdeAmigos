@@ -1,21 +1,24 @@
-import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 import { getSessionCookieName } from '@/lib/auth';
 import { getResultsScreenState, getUserFromSessionToken, saveOfficialResults } from '@/lib/db';
+import { assertSameOriginForMutation, noStoreJson } from '@/lib/security';
 
 export async function GET() {
   const token = cookies().get(getSessionCookieName())?.value ?? null;
   const state = await getResultsScreenState(token);
-  return NextResponse.json({ ok: true, state });
+  return noStoreJson({ ok: true, state });
 }
 
 export async function POST(request: Request) {
   try {
+    const originError = assertSameOriginForMutation(request);
+    if (originError) return originError;
+
     const token = cookies().get(getSessionCookieName())?.value ?? null;
     const user = await getUserFromSessionToken(token);
     if (!user || user.role !== 'admin') {
-      return NextResponse.json({ ok: false, error: 'Solo el administrador puede cargar resultados oficiales' }, { status: 403 });
+      return noStoreJson({ ok: false, error: 'Solo el administrador puede cargar resultados oficiales' }, { status: 403 });
     }
 
     const body = (await request.json()) as {
@@ -24,10 +27,9 @@ export async function POST(request: Request) {
 
     await saveOfficialResults(body.results ?? []);
     const state = await getResultsScreenState(token);
-    return NextResponse.json({ ok: true, state });
+    return noStoreJson({ ok: true, state });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'No se pudieron guardar los resultados';
-    return NextResponse.json({ ok: false, error: message }, { status: 400 });
+    return noStoreJson({ ok: false, error: message }, { status: 400 });
   }
 }
-
