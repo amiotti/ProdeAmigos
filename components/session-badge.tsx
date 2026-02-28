@@ -115,17 +115,8 @@ export function SessionBadge({ initialData }: { initialData: SessionBadgeData })
     );
   }
 
-  const user = data.user;
-
   return (
     <div className="session-badge">
-      <span className="session-avatar session-avatar-fallback" aria-hidden="true">
-        {`${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || (user.name?.[0] ?? 'U')}
-      </span>
-      <Link className="session-user-text" href="/profile" title="Ir a mi perfil">
-        <strong>{user.name}</strong>
-        <span>{user.role === 'admin' ? 'Administrador' : 'Usuario'}</span>
-      </Link>
       <div className="session-user-actions">
         <Link className="session-icon-btn" href="/profile" aria-label="Ir a mi perfil" title="Ir a mi perfil">
           <ProfileIcon />

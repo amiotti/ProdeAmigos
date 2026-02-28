@@ -1,10 +1,18 @@
-﻿export const metadata = {
+﻿import Link from 'next/link';
+
+export const metadata = {
   title: 'Términos y Condiciones | PRODE Mundial 2026',
 };
 
 export default function TermsPage() {
   return (
     <section className="stack-lg legal-doc">
+      <div className="legal-back-row">
+        <Link className="legal-back-btn" href="/" aria-label="Volver atrás">
+          ←
+        </Link>
+      </div>
+
       <div className="panel stack-md">
         <h2>Términos y Condiciones</h2>
         <p className="muted">
