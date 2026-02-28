@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -53,7 +53,3 @@ export function LoginForm() {
     </form>
   );
 }
-
-
-
-

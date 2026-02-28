@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { cookies } from 'next/headers';
 import type { ReactNode } from 'react';
 
@@ -37,20 +37,8 @@ export async function AppShell({ children }: { children: ReactNode }) {
           <div className="topbar-main">
             <div className="brand-wrap">
               <div className="brand-logo-panel" aria-hidden="true">
-                <img
-                  className="brand-logo-img brand-logo-img-light"
-                  src="/fifa_logo_light.png"
-                  alt=""
-                  loading="eager"
-                  decoding="async"
-                />
-                <img
-                  className="brand-logo-img brand-logo-img-dark"
-                  src="/fifa_logo_dark.jfif"
-                  alt=""
-                  loading="eager"
-                  decoding="async"
-                />
+                <img className="brand-logo-img brand-logo-img-light" src="/fifa_logo_light.png" alt="" loading="eager" decoding="async" />
+                <img className="brand-logo-img brand-logo-img-dark" src="/fifa_logo_dark.jfif" alt="" loading="eager" decoding="async" />
               </div>
               <div className="brand-meta">
                 <p className="eyebrow">PRODE MUNDIAL</p>
@@ -92,9 +80,9 @@ export async function AppShell({ children }: { children: ReactNode }) {
             </a>
             .
           </p>
-          <p>
-            <Link href="/terms">Términos y condiciones</Link>
-          </p>
+          <p><Link href="/terms">Términos y condiciones</Link></p>
+          <p><Link href="/privacy">Privacidad</Link></p>
+          <p><Link href="/legal">Aviso legal</Link></p>
         </div>
       </footer>
 

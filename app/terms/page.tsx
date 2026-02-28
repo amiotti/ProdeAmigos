@@ -1,71 +1,92 @@
-export const metadata = {
-  title: 'Términos y condiciones | PRODE Mundial 2026',
+﻿export const metadata = {
+  title: 'Términos y Condiciones | PRODE Mundial 2026',
 };
 
 export default function TermsPage() {
   return (
-    <section className="stack-lg">
-      <div className="panel">
-        <h2>Términos y condiciones</h2>
+    <section className="stack-lg legal-doc">
+      <div className="panel stack-md">
+        <h2>Términos y Condiciones</h2>
         <p className="muted">
-          Estos Términos regulan el uso del sitio PRODE Mundial 2026 en la República Argentina. Al registrarte y
-          utilizar la plataforma aceptás estas condiciones.
+          Estos Términos regulan el acceso y uso de PRODE Mundial 2026 en la República Argentina. Al registrarte,
+          pagar la inscripción o utilizar la plataforma aceptás estas condiciones.
+        </p>
+        <p className="muted">
+          La plataforma presta un servicio digital de organización y gestión de pronósticos deportivos entre usuarios
+          registrados. No constituye una casa de apuestas ni ofrece juego de azar regulado.
         </p>
       </div>
 
       <div className="panel stack-md">
-        <h3>1. Participación y elegibilidad</h3>
+        <h3>1. Objeto del servicio</h3>
         <ul className="list">
-          <li>La participación es exclusiva para mayores de 18 años.</li>
-          <li>Cada persona puede registrar un único usuario.</li>
-          <li>La cuenta es personal e intransferible.</li>
+          <li>La inscripción otorga acceso a la plataforma, carga de pronósticos, ranking, perfil, resultados y estadísticas.</li>
+          <li>El servicio incluye infraestructura, base de datos, dominio, mantenimiento, soporte operativo y administración del grupo.</li>
+          <li>La organización puede introducir mejoras, cambios visuales y ajustes técnicos sin alterar derechos ya adquiridos por el usuario.</li>
         </ul>
 
-        <h3>2. Inscripción y pagos</h3>
+        <h3>2. Elegibilidad y cuentas</h3>
         <ul className="list">
-          <li>La inscripción queda confirmada una vez aprobado el pago.</li>
-          <li>Las transferencias y pagos de inscripción se procesan de forma segura a través de la plataforma Galio Pay.</li>
-          <li>Los pagos realizados no son reembolsables salvo disposición legal aplicable.</li>
-          <li>El organizador puede solicitar validaciones adicionales ante inconsistencias.</li>
+          <li>La participación está reservada a personas mayores de 18 años con capacidad legal suficiente.</li>
+          <li>Cada cuenta es personal e intransferible. No se admite la suplantación de identidad ni la apertura de cuentas múltiples para una misma persona.</li>
+          <li>El usuario debe mantener actualizados sus datos de contacto y datos bancarios o alias para eventuales premios.</li>
         </ul>
 
-        <h3>3. Predicciones y reglas del juego</h3>
+        <h3>3. Inscripción, pagos y destino de fondos</h3>
         <ul className="list">
-          <li>Las predicciones pueden editarse hasta 1 hora antes del inicio de cada partido.</li>
-          <li>Los resultados oficiales los carga el administrador según fuentes públicas confiables.</li>
-          <li>La tabla de posiciones se actualiza automáticamente con los resultados oficiales.</li>
+          <li>La inscripción se considera efectiva cuando el pago es aprobado por la plataforma de cobro o validado manualmente por el administrador.</li>
+          <li>Los fondos de inscripción pueden destinarse a acceso completo a la plataforma, premios, mantenimiento de base de datos, dominio, hosting, soporte y gastos operativos.</li>
+          <li>El usuario reconoce que el monto de inscripción no se asigna en forma exclusiva a premios, salvo que el organizador comunique expresamente otra modalidad.</li>
+          <li>Los pagos se procesan a través de Galio Pay o del medio de pago que la organización informe como válido en cada momento.</li>
         </ul>
 
-        <h3>4. Premios</h3>
+        <h3>4. Reembolsos, cancelaciones y bajas</h3>
         <ul className="list">
-          <li>Los premios se asignan según el ranking final publicado en la plataforma.</li>
-          <li>El monto final de los premios en dinero dependerá de la cantidad de participantes inscriptos.</li>
-          <li>En caso de empate, se aplican los criterios de desempate definidos en la página de reglas.</li>
-          <li>Los premios no son canjeables por dinero salvo que se indique expresamente.</li>
+          <li>Salvo obligación legal aplicable o decisión expresa del organizador, la inscripción no es reembolsable una vez confirmada.</li>
+          <li>Si el usuario solicita la baja de su cuenta, la organización podrá conservar la información necesaria por razones legales, contables, antifraude y de auditoría.</li>
+          <li>La baja de la cuenta no implica automáticamente la devolución de pagos ya realizados ni la eliminación inmediata de registros históricos del torneo.</li>
         </ul>
 
-        <h3>5. Conducta y uso aceptable</h3>
+        <h3>5. Predicciones, resultados y ranking</h3>
         <ul className="list">
-          <li>Está prohibido el uso indebido del sitio o la alteración de datos.</li>
-          <li>El organizador puede suspender cuentas por fraude o incumplimientos.</li>
+          <li>Las predicciones solo pueden cargarse o editarse hasta la ventana de cierre definida por la plataforma.</li>
+          <li>Los resultados oficiales son cargados por el administrador y son la base exclusiva para el cálculo del ranking y del puntaje.</li>
+          <li>La tabla de posiciones y las estadísticas se actualizan automáticamente en función de los resultados oficiales cargados.</li>
+          <li>En caso de errores materiales manifiestos, la organización puede corregir resultados, puntajes, fixtures o clasificaciones para reflejar correctamente la realidad deportiva.</li>
         </ul>
 
-        <h3>6. Datos personales</h3>
+        <h3>6. Modelo de premios</h3>
         <ul className="list">
-          <li>Los datos se utilizan para gestionar el PRODE y comunicación con los participantes.</li>
-          <li>Se aplican las normas de la Ley 25.326 de Protección de Datos Personales.</li>
+          <li>La plataforma puede operar con esquema de premios top 5 u otro esquema que el organizador publique antes del inicio del torneo.</li>
+          <li>Los premios en dinero, órdenes de compra, cenas, indumentaria u otros beneficios están sujetos a disponibilidad y a las reglas específicas anunciadas por el organizador.</li>
+          <li>El monto efectivo de premios puede variar según la cantidad de participantes, gastos operativos, costos de plataforma y modalidad comercial elegida.</li>
+          <li>La organización puede reemplazar premios no monetarios por otros de valor equivalente o similar, cuando existan causas justificadas.</li>
         </ul>
 
-        <h3>7. Responsabilidad</h3>
+        <h3>7. Conducta prohibida</h3>
         <ul className="list">
-          <li>El servicio puede tener interrupciones por mantenimiento o causas externas.</li>
-          <li>No se garantiza disponibilidad continua ni ausencia de errores.</li>
+          <li>Queda prohibido manipular resultados, intentar alterar el funcionamiento del sitio, acceder sin autorización, automatizar acciones o explotar vulnerabilidades.</li>
+          <li>También se prohíbe utilizar la plataforma para canalizar apuestas, captar fondos para juegos de azar, ofrecer servicios de betting o fomentar conductas de ludopatía.</li>
+          <li>La organización podrá suspender o cancelar cuentas por fraude, abuso, incumplimiento de reglas, falta de pago o uso contrario a la ley.</li>
         </ul>
 
-        <h3>8. Jurisdicción</h3>
+        <h3>8. Limitación de responsabilidad</h3>
         <ul className="list">
-          <li>Estas condiciones se rigen por las leyes de la República Argentina.</li>
-          <li>Cualquier disputa se someterá a los tribunales ordinarios de la Ciudad Autónoma de Buenos Aires.</li>
+          <li>La plataforma se ofrece bajo criterio de disponibilidad razonable. Pueden existir interrupciones por mantenimiento, fallas de terceros, problemas de conectividad o causas de fuerza mayor.</li>
+          <li>La organización no garantiza disponibilidad continua, ausencia absoluta de errores ni compatibilidad con todos los navegadores o dispositivos.</li>
+          <li>La responsabilidad del organizador se limita, en la máxima medida permitida por la ley aplicable, al valor efectivamente abonado por el usuario para la edición vigente del torneo.</li>
+        </ul>
+
+        <h3>9. Propiedad intelectual y contenidos</h3>
+        <ul className="list">
+          <li>El software, diseño, marca del servicio, textos originales, base de datos estructurada y desarrollos propios pertenecen a sus titulares y no pueden copiarse, revenderse o explotarse sin autorización.</li>
+          <li>Los nombres de equipos, marcas, escudos o referencias deportivas pertenecen a sus respectivos titulares y se utilizan con fines descriptivos e informativos.</li>
+        </ul>
+
+        <h3>10. Ley aplicable y jurisdicción</h3>
+        <ul className="list">
+          <li>Estos Términos se rigen por las leyes de la República Argentina.</li>
+          <li>En la medida permitida por la normativa aplicable, cualquier controversia será sometida a los tribunales ordinarios con jurisdicción en la Ciudad Autónoma de Buenos Aires, sin perjuicio de los derechos del consumidor que resulten inderogables.</li>
         </ul>
       </div>
     </section>

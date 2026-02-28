@@ -133,7 +133,7 @@ export function PredictionsBoard({
 
   async function savePredictions(targetMatchId?: string) {
     if (!currentUser) {
-      setMessage('Debes iniciar sesiÃ³n para cargar predicciones.');
+      setMessage('Debes iniciar sesi?n para cargar predicciones.');
       return;
     }
 
@@ -182,9 +182,9 @@ export function PredictionsBoard({
       const locked = Array.isArray(data.lockedMatches) ? (data.lockedMatches as string[]) : [];
       setMessage(
         locked.length > 0
-          ? `Predicciones guardadas. ${locked.length} partido(s) ya estÃ¡n cerrados (menos de 1 hora para el inicio) y no se modificaron.`
+          ? `Predicciones guardadas. ${locked.length} partido(s) ya est?n cerrados (menos de 1 hora para el inicio) y no se modificaron.`
           : targetMatchId
-            ? 'PredicciÃ³n guardada correctamente. Puedes editarla hasta 1 hora antes del partido.'
+            ? 'Predicci?n guardada correctamente. Puedes editarla hasta 1 hora antes del partido.'
             : 'Predicciones guardadas correctamente. Puedes editarlas hasta 1 hora antes de cada partido.',
       );
     } catch (error) {
@@ -197,7 +197,7 @@ export function PredictionsBoard({
 
   async function saveGroupPredictions(groupId: string, matchIds: string[]) {
     if (!currentUser) {
-      setMessage('Debes iniciar sesiÃ³n para cargar predicciones.');
+      setMessage('Debes iniciar sesi?n para cargar predicciones.');
       return;
     }
 
@@ -238,7 +238,7 @@ export function PredictionsBoard({
       const locked = Array.isArray(data.lockedMatches) ? (data.lockedMatches as string[]) : [];
       setMessage(
         locked.length > 0
-          ? `Predicciones del grupo guardadas. ${locked.length} partido(s) ya estÃ¡n cerrados y no se modificaron.`
+          ? `Predicciones del grupo guardadas. ${locked.length} partido(s) ya est?n cerrados y no se modificaron.`
           : 'Predicciones del grupo guardadas correctamente.',
       );
     } catch (error) {
@@ -261,7 +261,7 @@ export function PredictionsBoard({
         throw new Error(data.error || 'No se pudo generar el pago');
       }
       const redirectUrl = data.url as string | undefined;
-      if (!redirectUrl) throw new Error('GalioPay no devolviÃ³ URL de checkout');
+      if (!redirectUrl) throw new Error('GalioPay no devolvi? URL de checkout');
       window.location.href = redirectUrl;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'No se pudo iniciar el pago');
@@ -293,7 +293,7 @@ export function PredictionsBoard({
               return `${p.homeWinPct}% ${match.homeTeam} | ${p.drawPct}% empate | ${p.awayWinPct}% ${match.awayTeam}`;
             })()}
           </p>
-          {isLocked ? <p className="match-meta">PredicciÃ³n cerrada (menos de 1 hora para el inicio)</p> : null}
+          {isLocked ? <p className="match-meta">Predicci?n cerrada (menos de 1 hora para el inicio)</p> : null}
           {match.officialResult ? (
             <p className="official-result">
               Oficial: {match.officialResult.home} - {match.officialResult.away}
@@ -322,7 +322,7 @@ export function PredictionsBoard({
             type="button"
             onClick={() => savePredictions(match.id)}
             disabled={isLocked || saving || savingMatchId === match.id || draft.home === '' || draft.away === ''}
-            title="Guardar esta predicciÃ³n"
+            title="Guardar esta predicci?n"
           >
             {savingMatchId === match.id ? 'Guardando...' : 'Guardar'}
           </button>
@@ -339,7 +339,7 @@ export function PredictionsBoard({
     return (
       <div className="panel stack-md">
         <h3>Predicciones</h3>
-        <p className="muted">Debes iniciar sesiÃ³n para cargar tus pronÃ³sticos. Puedes editar cada partido hasta 1 hora antes del inicio.</p>
+        <p className="muted">Debes iniciar sesi?n para cargar tus pron?sticos. Puedes editar cada partido hasta 1 hora antes del inicio.</p>
         <div className="cta-row">
           <Link className="cta-link" href="/login">
             Ingresar
@@ -366,11 +366,11 @@ export function PredictionsBoard({
       <div className="panel stack-md">
         <h3>Predicciones bloqueadas hasta confirmar pago</h3>
         <p className="muted">
-          Tu usuario tiene estado de inscripciÃ³n <strong>{currentUser.registrationPaymentStatus ?? 'pending'}</strong>. Debes completar y confirmar el pago de <strong>${registrationAmountArs.toLocaleString('es-AR')}</strong> para acceder a la carga de predicciones.
+          Tu usuario tiene estado de inscripci?n <strong>{currentUser.registrationPaymentStatus ?? 'pending'}</strong>. Debes completar y confirmar el pago de <strong>${registrationAmountArs.toLocaleString('es-AR')}</strong> para acceder a la carga de predicciones.
         </p>
         <div className="cta-row">
           <button className="btn btn-primary" type="button" onClick={startRegistrationPayment} disabled={paying}>
-            {paying ? 'Redirigiendo a GalioPay...' : 'Pagar inscripciÃ³n'}
+            {paying ? 'Redirigiendo a GalioPay...' : 'Pagar inscripci?n'}
           </button>
           <Link className="cta-link" href="/payment/return">
             Revisar estado del pago
@@ -410,7 +410,7 @@ export function PredictionsBoard({
 
       <div className="panel">
         <p className="muted">
-          Regla de cierre: las predicciones se pueden crear o editar hasta <strong>1 hora antes</strong> del inicio de cada partido. DespuÃ©s del cierre quedan bloqueadas.
+          Regla de cierre: las predicciones se pueden crear o editar hasta <strong>1 hora antes</strong> del inicio de cada partido. Despu?s del cierre quedan bloqueadas.
         </p>
       </div>
 

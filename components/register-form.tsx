@@ -1,5 +1,6 @@
-'use client';
+﻿'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -11,11 +12,17 @@ export function RegisterForm({ registrationAmountArs }: { registrationAmountArs:
   const [phone, setPhone] = useState('');
   const [bankInfo, setBankInfo] = useState('');
   const [password, setPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!acceptedTerms) {
+      setStatus('Debes aceptar los Términos y Condiciones para registrarte.');
+      return;
+    }
+
     setLoading(true);
     setStatus(null);
 
@@ -82,7 +89,22 @@ export function RegisterForm({ registrationAmountArs }: { registrationAmountArs:
         />
       </label>
 
-      <button className="btn btn-primary" disabled={loading} type="submit">
+      <label className="auth-legal-check">
+        <input
+          type="checkbox"
+          checked={acceptedTerms}
+          onChange={(e) => setAcceptedTerms(e.target.checked)}
+          required
+        />
+        <span className="auth-legal-text">
+          Acepto los{' '}
+          <Link href="/terms" className="auth-legal-link" target="_blank" rel="noreferrer">
+            Términos y Condiciones
+          </Link>
+        </span>
+      </label>
+
+      <button className="btn btn-primary" disabled={loading || !acceptedTerms} type="submit">
         {loading ? 'Creando usuario...' : 'Registrarme'}
       </button>
 
@@ -94,4 +116,3 @@ export function RegisterForm({ registrationAmountArs }: { registrationAmountArs:
     </form>
   );
 }
-

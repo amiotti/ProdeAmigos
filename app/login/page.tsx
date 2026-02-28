@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 
 import { LoginForm } from '@/components/login-form';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -32,4 +32,3 @@ export default function LoginPage() {
     </section>
   );
 }
-

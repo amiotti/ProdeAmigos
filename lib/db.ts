@@ -736,6 +736,38 @@ export async function adminDeleteUser(targetUserId: string) {
   invalidateCoreStateCache();
 }
 
+export async function adminSetUserRegistrationPaymentStatus(
+  targetUserId: string,
+  status: 'pending' | 'approved' | 'failed',
+) {
+  await ensureBaseData();
+  const user = await queryUserByIdOnly(targetUserId);
+  if (!user) throw new Error('Usuario no encontrado');
+  if (user.role === 'admin') throw new Error('No se puede modificar el pago del administrador');
+
+  const ts = nowIso();
+  const approvedAt = status === 'approved' ? user.registrationPaymentApprovedAt ?? ts : null;
+  const receipt = status === 'approved' ? user.registrationPaymentReceipt ?? 'Aprobado manualmente por admin' : null;
+
+  await getInstantAdminDb().transact([
+    tx.prode_users[targetUserId].update({
+      registrationPaymentStatus: status,
+      registrationPaymentApprovedAt: approvedAt,
+      registrationPaymentReceipt: receipt,
+      updatedAt: ts,
+    }),
+  ]);
+  invalidateCoreStateCache();
+
+  return publicUser({
+    ...user,
+    registrationPaymentStatus: status,
+    registrationPaymentApprovedAt: approvedAt,
+    registrationPaymentReceipt: receipt,
+    updatedAt: ts,
+  });
+}
+
 export async function markUserRegistrationPaymentApproved(userId: string, receipt?: string | null) {
   await ensureBaseData();
   const user = await queryUserByIdOnly(userId);

@@ -1,21 +1,34 @@
 ﻿import { TeamName } from '@/components/team-name';
 import { getState } from '@/lib/db';
-import { formatDateTimeArgentina } from '@/lib/datetime';
+import { formatKickoffArgentina } from '@/lib/datetime';
 import { buildCalendarFixtures, hasKnownTeam } from '@/lib/worldcup26';
 
 export const dynamic = 'force-dynamic';
 
 export default async function CalendarPage() {
   const state = await getState();
-  const fixtures = buildCalendarFixtures(state.db.matches);
+  const groupStageFixtures = [...state.db.matches]
+    .sort((a, b) => new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime())
+    .map((match) => ({
+      id: match.id,
+      stage: `Fase de grupos - ${match.groupId}`,
+      date: match.kickoffAt,
+      homeTeam: match.homeTeam,
+      awayTeam: match.awayTeam,
+      venue: match.venue ?? null,
+    }));
+  const knockoutFixtures = buildCalendarFixtures(state.db.matches).filter((fixture) => fixture.stage === 'Fase final');
+  const fixtures = [...groupStageFixtures, ...knockoutFixtures].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  );
 
   return (
     <section className="stack-lg">
       <div className="panel">
         <h2>Calendario</h2>
         <p className="muted">
-          Fixture oficial cargado desde publicación web con fechas y sedes. Los horarios se muestran en hora de
-          Argentina (UTC-3). La fase final mantiene etiquetas de cruce hasta que se definan los clasificados.
+          Fixture oficial con fechas y sedes. Los horarios se muestran en hora de Argentina. La fase final mantiene
+          etiquetas de cruce hasta que se definan los clasificados.
         </p>
       </div>
 
@@ -38,7 +51,7 @@ export default async function CalendarPage() {
                   <span className="match-code-nowrap">{fixture.id}</span>
                 </td>
                 <td>{fixture.stage}</td>
-                <td>{formatDateTimeArgentina(fixture.date)}</td>
+                <td>{formatKickoffArgentina(fixture.date)}</td>
                 <td>
                   {fixture.awayTeam && hasKnownTeam(fixture.homeTeam) ? (
                     <TeamName teamName={fixture.homeTeam} linkToTeam />

@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 
 import { getSessionCookieName } from '@/lib/auth';
-import { adminDeleteUser, createUser, getUserFromSessionToken, listUsers } from '@/lib/db';
+import { adminDeleteUser, adminSetUserRegistrationPaymentStatus, createUser, getUserFromSessionToken, listUsers } from '@/lib/db';
 import { assertSameOriginForMutation, noStoreJson } from '@/lib/security';
 
 async function requireAdmin() {
@@ -66,6 +66,33 @@ export async function POST(request: Request) {
     return noStoreJson({ ok: true, user }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'No se pudo registrar el usuario';
+    return noStoreJson({ ok: false, error: message }, { status: 400 });
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const originError = assertSameOriginForMutation(request);
+    if (originError) return originError;
+
+    const admin = await requireAdmin();
+    if (!admin) return noStoreJson({ ok: false, error: 'Solo admin' }, { status: 403 });
+
+    const body = (await request.json()) as {
+      userId?: string;
+      registrationPaymentStatus?: 'pending' | 'approved' | 'failed';
+    };
+
+    if (!body.userId) return noStoreJson({ ok: false, error: 'Falta userId' }, { status: 400 });
+    if (!body.registrationPaymentStatus || !['pending', 'approved', 'failed'].includes(body.registrationPaymentStatus)) {
+      return noStoreJson({ ok: false, error: 'Estado de pago invalido' }, { status: 400 });
+    }
+
+    await adminSetUserRegistrationPaymentStatus(body.userId, body.registrationPaymentStatus);
+    const users = await listUsers();
+    return noStoreJson({ ok: true, users });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'No se pudo actualizar el pago del usuario';
     return noStoreJson({ ok: false, error: message }, { status: 400 });
   }
 }
