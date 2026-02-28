@@ -46,6 +46,7 @@ export function UsersPanel({ initialUsers }: { initialUsers: User[] }) {
               <th>Nombre</th>
               <th>Email</th>
               <th>Teléfono</th>
+              <th>CBU/CVU o Alias</th>
               <th>Rol</th>
               <th>Acción</th>
             </tr>
@@ -61,6 +62,7 @@ export function UsersPanel({ initialUsers }: { initialUsers: User[] }) {
                 <td>{user.name}</td>
                 <td>{user.email}</td>
                 <td>{user.phone}</td>
+                <td>{user.bankInfo}</td>
                 <td>{user.role === 'admin' ? 'Administrador' : 'Usuario'}</td>
                 <td>
                   {user.role === 'admin' ? (
@@ -84,3 +86,4 @@ export function UsersPanel({ initialUsers }: { initialUsers: User[] }) {
     </section>
   );
 }
+

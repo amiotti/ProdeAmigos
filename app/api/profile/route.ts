@@ -29,6 +29,7 @@ export async function PATCH(request: Request) {
       firstName?: string;
       lastName?: string;
       phone?: string;
+      bankInfo?: string;
       password?: string;
     };
 
@@ -36,6 +37,7 @@ export async function PATCH(request: Request) {
       firstName: body.firstName,
       lastName: body.lastName,
       phone: body.phone,
+      bankInfo: body.bankInfo,
       password: body.password,
     });
 

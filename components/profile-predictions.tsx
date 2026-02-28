@@ -57,10 +57,13 @@ export function ProfilePredictions({
       .filter((p) => p.userId === userId)
       .map((p) => {
         const match = state.db.matches.find((m) => m.id === p.matchId);
-        return match ? { prediction: p, match } : null;
+        return { prediction: p, match };
       })
-      .filter((row): row is NonNullable<typeof row> => Boolean(row))
-      .sort((a, b) => new Date(a.match.kickoffAt).getTime() - new Date(b.match.kickoffAt).getTime());
+      .sort((a, b) => {
+        const aTime = a.match ? new Date(a.match.kickoffAt).getTime() : Number.MAX_SAFE_INTEGER;
+        const bTime = b.match ? new Date(b.match.kickoffAt).getTime() : Number.MAX_SAFE_INTEGER;
+        return aTime - bTime;
+      });
   }, [state, userId]);
 
   async function downloadPdf() {
@@ -95,12 +98,7 @@ export function ProfilePredictions({
         <h3>Mis predicciones guardadas</h3>
         <div className="cta-row">
           <span>{predictionRows.length} registradas</span>
-          <button
-            className="btn btn-small"
-            type="button"
-            onClick={downloadPdf}
-            disabled={downloading || predictionRows.length === 0}
-          >
+          <button className="btn btn-small" type="button" onClick={downloadPdf} disabled={downloading || predictionRows.length === 0}>
             {downloading ? 'Generando PDF...' : 'Descargar PDF'}
           </button>
         </div>
@@ -114,25 +112,25 @@ export function ProfilePredictions({
           {predictionRows.map(({ prediction, match }) => (
             <div key={prediction.id} className="match-card">
               <div>
-                <p className="match-meta">
-                  {match.id} - {formatKickoffArgentina(match.kickoffAt)}
-                </p>
-                {match.venue ? <p className="match-meta">Sede: {match.venue}</p> : null}
-                <div className="fixture-row">
-                  <TeamName teamName={match.homeTeam} linkToTeam />
-                  <span className="vs">vs</span>
-                  <TeamName teamName={match.awayTeam} linkToTeam />
-                </div>
-                {match.officialResult ? (
-                  <p className="official-result">
-                    Resultado oficial: {match.officialResult.home} - {match.officialResult.away}
-                  </p>
+                <p className="match-meta">{match ? `${match.id} - ${formatKickoffArgentina(match.kickoffAt)}` : prediction.matchId}</p>
+                <p className="match-meta">Sede: {match?.venue ?? 'Pendiente de confirmar'}</p>
+                {match ? (
+                  <div className="fixture-row">
+                    <TeamName teamName={match.homeTeam} linkToTeam />
+                    <span className="vs">vs</span>
+                    <TeamName teamName={match.awayTeam} linkToTeam />
+                  </div>
+                ) : (
+                  <p className="muted">No se encontró el fixture actual de esta predicción, pero el registro guardado sigue disponible.</p>
+                )}
+                {match?.officialResult ? (
+                  <p className="official-result">Resultado oficial: {match.officialResult.home} - {match.officialResult.away}</p>
                 ) : null}
               </div>
               <div className="score-inputs is-locked">
-                <input value={String(prediction.homeGoals)} disabled aria-label={`Goles pronosticados ${match.homeTeam}`} />
+                <input value={String(prediction.homeGoals)} disabled aria-label={`Goles pronosticados local`} />
                 <span className="score-divider">-</span>
-                <input value={String(prediction.awayGoals)} disabled aria-label={`Goles pronosticados ${match.awayTeam}`} />
+                <input value={String(prediction.awayGoals)} disabled aria-label={`Goles pronosticados visitante`} />
                 <span className="chip">Guardada</span>
               </div>
             </div>
@@ -142,3 +140,4 @@ export function ProfilePredictions({
     </div>
   );
 }
+

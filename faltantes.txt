@@ -1,0 +1,14 @@
+				
+
+
+
+-Sponsors Perfil, Mercadito Gala, La Canti Chia Salud
+
+
+-modificar / para escalamiento
+-en el inicio en el panel resumen, hay un subpanel que cuenta la cantidad de usuarios, no se debería contar el administrador
+
+
+-no figura la sede en la carga de proyecciones ni las proyecciones cargadas de la fecha 1 de Senegal
+
+

@@ -52,6 +52,7 @@ export async function POST(request: Request) {
       lastName?: string;
       email?: string;
       phone?: string;
+      bankInfo?: string;
       password?: string;
     };
     const user = await createUser({
@@ -59,6 +60,7 @@ export async function POST(request: Request) {
       lastName: body.lastName ?? '',
       email: body.email ?? '',
       phone: body.phone ?? '',
+      bankInfo: body.bankInfo ?? '',
       password: body.password ?? '',
     });
     return noStoreJson({ ok: true, user }, { status: 201 });

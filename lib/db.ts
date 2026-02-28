@@ -15,6 +15,7 @@ type InstantUserDoc = {
   name: string;
   email: string;
   phone: string;
+  bankInfo: string;
   registrationPaymentStatus?: 'pending' | 'approved' | 'failed';
   registrationPaymentApprovedAt?: string | null;
   registrationPaymentReceipt?: string | null;
@@ -117,6 +118,7 @@ function publicUser(doc: InstantUserDoc): User {
     firstName: doc.firstName,
     lastName: doc.lastName,
     phone: doc.phone,
+    bankInfo: doc.bankInfo ?? '-',
     registrationPaymentStatus: doc.registrationPaymentStatus ?? (doc.role === 'admin' ? 'approved' : 'pending'),
     registrationPaymentApprovedAt: doc.registrationPaymentApprovedAt ?? null,
     registrationPaymentReceipt: doc.registrationPaymentReceipt ?? null,
@@ -132,24 +134,32 @@ function sanitizePhone(phone: string) {
   return phone.trim().replace(/\s+/g, ' ').slice(0, 32);
 }
 
+function sanitizeBankInfo(value: string) {
+  return value.trim().replace(/\s+/g, ' ').slice(0, 120);
+}
+
 function validateRegistrationInput(input: {
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
+  bankInfo: string;
   password: string;
 }) {
   const firstName = sanitizeName(input.firstName);
   const lastName = sanitizeName(input.lastName);
   const email = normalizeEmail(input.email);
   const phone = sanitizePhone(input.phone);
+  const bankInfo = sanitizeBankInfo(input.bankInfo);
   if (!firstName) throw new Error('El nombre es obligatorio');
   if (!lastName) throw new Error('El apellido es obligatorio');
   if (!email) throw new Error('El email es obligatorio');
   if (!phone) throw new Error('El telefono es obligatorio');
+  if (!bankInfo) throw new Error('El CBU/CVU o Alias es obligatorio');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('El email no es valido');
   if (email.length > 120) throw new Error('El email es demasiado largo');
   if (!/^[0-9+()\-\s]{6,32}$/.test(phone)) throw new Error('El telefono no es valido');
+  if (bankInfo.length < 6) throw new Error('El CBU/CVU o Alias no es valido');
   if (!input.password || input.password.length < 8) throw new Error('La contrasena debe tener al menos 8 caracteres');
   if (input.password.length > 128) throw new Error('La contrasena es demasiado larga');
 }
@@ -237,6 +247,7 @@ async function ensureAdminUser() {
   const firstName = process.env.PRODE_ADMIN_FIRST_NAME?.trim() || 'Admin';
   const lastName = process.env.PRODE_ADMIN_LAST_NAME?.trim() || 'PRODE';
   const phone = process.env.PRODE_ADMIN_PHONE?.trim() || '-';
+  const bankInfo = '-';
   const ts = nowIso();
   const id = randomUUID();
   await getInstantAdminDb().transact([
@@ -247,6 +258,7 @@ async function ensureAdminUser() {
       name: `${firstName} ${lastName}`.trim(),
       email: adminEmail,
       phone,
+      bankInfo,
       role: 'admin',
       registrationPaymentStatus: 'approved',
       registrationPaymentApprovedAt: ts,
@@ -445,7 +457,7 @@ async function getCoreStateSnapshot() {
   const db = buildStateFromInstantData(data);
   const leaderboard = computeLeaderboard(db);
   const summary: StateResponse['summary'] = {
-    users: db.users.length,
+    users: db.users.filter((user) => user.role !== 'admin').length,
     matches: db.matches.length,
     matchesWithOfficialResult: db.matches.filter((m) => m.officialResult).length,
     predictions: db.predictions.length,
@@ -480,6 +492,7 @@ export async function createUser(input: {
   lastName: string;
   email: string;
   phone: string;
+  bankInfo: string;
   password: string;
 }): Promise<User> {
   await ensureBaseData();
@@ -496,6 +509,7 @@ export async function createUser(input: {
   const firstName = sanitizeName(input.firstName);
   const lastName = sanitizeName(input.lastName);
   const phone = sanitizePhone(input.phone);
+  const bankInfo = sanitizeBankInfo(input.bankInfo);
 
   const doc: InstantUserDoc = {
     id,
@@ -504,6 +518,7 @@ export async function createUser(input: {
     name: `${firstName} ${lastName}`.trim(),
     email,
     phone,
+    bankInfo,
     registrationPaymentStatus: 'pending',
     registrationPaymentApprovedAt: null,
     registrationPaymentReceipt: null,
@@ -545,7 +560,7 @@ export async function getUserFromSessionToken(token: string | undefined | null):
 
 export async function updateUserProfile(
   userId: string,
-  input: { firstName?: string; lastName?: string; phone?: string; password?: string },
+  input: { firstName?: string; lastName?: string; phone?: string; bankInfo?: string; password?: string },
 ): Promise<User> {
   await ensureBaseData();
   const users = await queryUsersOnly();
@@ -555,15 +570,18 @@ export async function updateUserProfile(
   const firstName = sanitizeName(input.firstName ?? current.firstName);
   const lastName = sanitizeName(input.lastName ?? current.lastName);
   const phone = sanitizePhone(input.phone ?? current.phone);
+  const bankInfo = sanitizeBankInfo(input.bankInfo ?? current.bankInfo ?? '-');
   if (!firstName) throw new Error('El nombre es obligatorio');
   if (!lastName) throw new Error('El apellido es obligatorio');
   if (!phone) throw new Error('El tel?fono es obligatorio');
+  if (!bankInfo) throw new Error('El CBU/CVU o Alias es obligatorio');
   if (!/^[0-9+()\-\s]{6,32}$/.test(phone)) throw new Error('El telefono no es valido');
 
   const patch: Partial<InstantUserDoc> = {
     firstName,
     lastName,
     phone,
+    bankInfo,
     name: `${firstName} ${lastName}`.trim(),
     updatedAt: nowIso(),
   };

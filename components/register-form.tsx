@@ -3,12 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-export function RegisterForm() {
+export function RegisterForm({ registrationAmountArs }: { registrationAmountArs: number }) {
   const router = useRouter();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [bankInfo, setBankInfo] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ export function RegisterForm() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, lastName, email, phone, password }),
+        body: JSON.stringify({ firstName, lastName, email, phone, bankInfo, password }),
       });
       const data = await response.json();
 
@@ -61,13 +62,22 @@ export function RegisterForm() {
         <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+54 9 11 ..." required />
       </label>
       <label>
+        CBU/CVU o Alias
+        <input
+          value={bankInfo}
+          onChange={(e) => setBankInfo(e.target.value)}
+          placeholder="Alias o CBU/CVU para premios"
+          required
+        />
+      </label>
+      <label>
         Contraseña
         <input
           type="password"
           value={password}
-          minLength={6}
+          minLength={8}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Mínimo 6 caracteres"
+          placeholder="Mínimo 8 caracteres"
           required
         />
       </label>
@@ -77,7 +87,11 @@ export function RegisterForm() {
       </button>
 
       {status ? <p className="status">{status}</p> : null}
-      <p className="muted">Luego podrás pagar la inscripción desde Predicciones o desde tu perfil.</p>
+      <p className="muted">
+        Monto de inscripción: <strong>${registrationAmountArs.toLocaleString('es-AR')}</strong>. Luego podrás pagarla
+        desde Predicciones o desde tu perfil.
+      </p>
     </form>
   );
 }
+

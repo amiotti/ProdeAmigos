@@ -3,12 +3,14 @@ import { cookies } from 'next/headers';
 import { PredictionsBoard } from '@/components/predictions-board';
 import { getSessionCookieName } from '@/lib/auth';
 import { getPredictionsScreenState } from '@/lib/db';
+import { getRegistrationAmountArs } from '@/lib/public-config';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PredictionsPage() {
   const token = cookies().get(getSessionCookieName())?.value ?? null;
   const state = await getPredictionsScreenState(token);
+  const registrationAmountArs = getRegistrationAmountArs();
 
   return (
     <section className="stack-lg">
@@ -19,7 +21,7 @@ export default async function PredictionsPage() {
           Los horarios se muestran en hora de Argentina.
         </p>
       </div>
-      <PredictionsBoard initialState={state} />
+      <PredictionsBoard initialState={state} registrationAmountArs={registrationAmountArs} />
     </section>
   );
 }

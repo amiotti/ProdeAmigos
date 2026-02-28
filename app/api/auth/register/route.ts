@@ -15,6 +15,7 @@ export async function POST(request: Request) {
       lastName?: string;
       email?: string;
       phone?: string;
+      bankInfo?: string;
       password?: string;
     };
 
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
       lastName: body.lastName ?? '',
       email: body.email ?? '',
       phone: body.phone ?? '',
+      bankInfo: body.bankInfo ?? '',
       password: body.password ?? '',
     });
 

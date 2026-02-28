@@ -25,6 +25,7 @@ export type User = {
   firstName: string;
   lastName: string;
   phone: string;
+  bankInfo: string;
   registrationPaymentStatus?: 'pending' | 'approved' | 'failed';
   registrationPaymentApprovedAt?: string | null;
   registrationPaymentReceipt?: string | null;

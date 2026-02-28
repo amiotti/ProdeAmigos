@@ -11,7 +11,7 @@ const bodyFont = Noto_Sans({ subsets: ['latin'], variable: '--font-body' });
 const titleFont = Oswald({ subsets: ['latin'], weight: ['500', '700'], variable: '--font-title' });
 
 export const metadata: Metadata = {
-  title: '🏆 PRODE Mundial 2026',
+  title: 'PRODE Mundial 2026',
   description: 'Predicciones del mundial con registro, resultados y tabla de posiciones',
 };
 

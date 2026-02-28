@@ -7,6 +7,7 @@ import type { Match, StateResponse } from '@/lib/types';
 
 type DraftMap = Record<string, { home: string; away: string }>;
 type ResultsViewMode = 'results' | 'standings';
+type ResultsSortMode = 'date' | 'group';
 type GroupStandingRow = {
   team: string;
   pj: number;
@@ -97,6 +98,7 @@ export function ResultsBoard({ initialState = null }: { initialState?: StateResp
   const [drafts, setDrafts] = useState<DraftMap>({});
   const [selectedGroupId, setSelectedGroupId] = useState('ALL');
   const [viewMode, setViewMode] = useState<ResultsViewMode>('results');
+  const [sortMode, setSortMode] = useState<ResultsSortMode>('date');
 
   useEffect(() => {
     if (initialState) return;
@@ -133,8 +135,17 @@ export function ResultsBoard({ initialState = null }: { initialState?: StateResp
 
   const visibleMatches = useMemo(() => {
     if (!state) return [] as Match[];
-    return state.db.matches.filter((m) => selectedGroupId === 'ALL' || m.groupId === selectedGroupId);
-  }, [state, selectedGroupId]);
+    const matches = state.db.matches.filter((m) => selectedGroupId === 'ALL' || m.groupId === selectedGroupId);
+    return matches.sort((a, b) => {
+      if (sortMode === 'group') {
+        if (a.groupId !== b.groupId) return a.groupId.localeCompare(b.groupId, 'es');
+        if (a.matchday !== b.matchday) return a.matchday - b.matchday;
+      }
+      const kickoffDiff = new Date(a.kickoffAt).getTime() - new Date(b.kickoffAt).getTime();
+      if (kickoffDiff !== 0) return kickoffDiff;
+      return a.groupId.localeCompare(b.groupId, 'es');
+    });
+  }, [state, selectedGroupId, sortMode]);
 
   const standingsByGroup = useMemo(() => (state ? buildGroupStandings(state) : new Map<string, GroupStandingRow[]>()), [state]);
   const visibleGroups = useMemo(
@@ -198,6 +209,14 @@ export function ResultsBoard({ initialState = null }: { initialState?: StateResp
                 {group.name}
               </option>
             ))}
+          </select>
+        </label>
+
+        <label>
+          Ordenar por
+          <select value={sortMode} onChange={(e) => setSortMode(e.target.value as ResultsSortMode)}>
+            <option value="date">Fecha</option>
+            <option value="group">Grupo</option>
           </select>
         </label>
 

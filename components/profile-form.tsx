@@ -10,6 +10,7 @@ export function ProfileForm({ user }: { user: User }) {
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
   const [phone, setPhone] = useState(user.phone);
+  const [bankInfo, setBankInfo] = useState(user.bankInfo);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -25,7 +26,7 @@ export function ProfileForm({ user }: { user: User }) {
       const response = await fetch('/api/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, lastName, phone, password: password || undefined }),
+        body: JSON.stringify({ firstName, lastName, phone, bankInfo, password: password || undefined }),
       });
       const data = await response.json();
       if (!response.ok || !data.ok) throw new Error(data.error || 'No se pudo actualizar el perfil');
@@ -86,6 +87,10 @@ export function ProfileForm({ user }: { user: User }) {
             <strong>{user.phone}</strong>
           </div>
           <div className="detail-card">
+            <span className="detail-label">CBU/CVU o Alias</span>
+            <strong>{user.bankInfo}</strong>
+          </div>
+          <div className="detail-card">
             <span className="detail-label">Rol</span>
             <strong>{user.role === 'admin' ? 'Administrador' : 'Usuario'}</strong>
           </div>
@@ -122,12 +127,16 @@ export function ProfileForm({ user }: { user: User }) {
             <input value={phone} onChange={(e) => setPhone(e.target.value)} required />
           </label>
           <label>
+            CBU/CVU o Alias
+            <input value={bankInfo} onChange={(e) => setBankInfo(e.target.value)} required />
+          </label>
+          <label>
             Nueva contraseña (opcional)
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
+              minLength={8}
               placeholder="Dejar vacío para no cambiar"
             />
           </label>
@@ -144,3 +153,4 @@ export function ProfileForm({ user }: { user: User }) {
     </section>
   );
 }
+

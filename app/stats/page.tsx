@@ -343,6 +343,29 @@ function recommendMonteCarloIterations(userCount: number, predictionCount: numbe
   return 90;
 }
 
+function getPositionDeltaFromLastDate(state: StateResponse, analytics: StatsAnalyticsSnapshot, userId: string) {
+  if (analytics.cumulativeLabels.length < 2) return null;
+
+  const pointsAt = (targetIndex: number, row: LeaderboardRow) => analytics.cumulativeByUser.get(row.userId)?.[targetIndex] ?? 0;
+  const buildRankingAt = (targetIndex: number) =>
+    [...state.leaderboard].sort((a, b) => {
+      const pb = pointsAt(targetIndex, b);
+      const pa = pointsAt(targetIndex, a);
+      if (pb !== pa) return pb - pa;
+      if (b.exactHits !== a.exactHits) return b.exactHits - a.exactHits;
+      if (b.outcomeHits !== a.outcomeHits) return b.outcomeHits - a.outcomeHits;
+      return a.userName.localeCompare(b.userName, 'es');
+    });
+
+  const prevRanking = buildRankingAt(analytics.cumulativeLabels.length - 2);
+  const currentRanking = buildRankingAt(analytics.cumulativeLabels.length - 1);
+  const prevPos = prevRanking.findIndex((row) => row.userId === userId);
+  const currentPos = currentRanking.findIndex((row) => row.userId === userId);
+  if (prevPos === -1 || currentPos === -1) return null;
+
+  return prevPos - currentPos;
+}
+
 function AdminStatsDashboard({ state }: { state: StateResponse }) {
   const analytics = getStatsAnalytics(state);
   const predictionsByGroup = analytics.predictionsByGroup.map((g) => ({ label: g.groupId, value: g.count, note: g.groupName }));
@@ -480,6 +503,7 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
 
   const userProb = monteCarloResults.find((r) => r.userId === user.id)?.probability ?? 0;
   const riskPct = getUniquePredictionRiskScore(user.id, state.db, analytics.predictionPatternFrequency);
+  const positionDelta = getPositionDeltaFromLastDate(state, analytics, user.id);
 
   const badges: string[] = [];
   if (exactPct >= 25) badges.push('Nostradamus');
@@ -510,6 +534,13 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
             <span className="detail-label">Probabilidad de ganar</span>
             <strong>{userProb}%</strong>
             <span className="muted compact-text">Modelo simple de simulación (Monte Carlo)</span>
+          </div>
+          <div className="detail-card">
+            <span className="detail-label">Posiciones ganadas</span>
+            <strong>
+              {positionDelta == null ? '-' : positionDelta > 0 ? `+${positionDelta}` : String(positionDelta)}
+            </strong>
+            <span className="muted compact-text">Comparado con la última fecha evaluada.</span>
           </div>
         </div>
       </div>
