@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { cookies } from 'next/headers';
 
 import { UserEvolutionComparisonChart } from '@/components/user-evolution-comparison-chart';
@@ -469,7 +469,7 @@ function OfficialMatchStatsPanel({ state }: { state: StateResponse }) {
       <div className="panel stack-md">
         <div className="section-head">
           <h3>Partidos oficiales</h3>
-          <span>Metricas calculadas con resultados cargados</span>
+          <span>Métricas calculadas con resultados cargados</span>
         </div>
 
         <div className="detail-grid">
@@ -499,13 +499,13 @@ function OfficialMatchStatsPanel({ state }: { state: StateResponse }) {
       <div className="stats-grid">
         <div className="panel stack-md">
           <div className="section-head">
-            <h3>Partidos con mas goles</h3>
+            <h3>Partidos con más goles</h3>
             <span>Top 5</span>
           </div>
           {insights.topScoring.length > 0 ? (
             <HorizontalBars data={insights.topScoring} />
           ) : (
-            <p className="muted">Aun no hay resultados oficiales cargados.</p>
+            <p className="muted">Aún no hay resultados oficiales cargados.</p>
           )}
         </div>
 
@@ -517,20 +517,20 @@ function OfficialMatchStatsPanel({ state }: { state: StateResponse }) {
           {insights.biggestMargins.length > 0 ? (
             <HorizontalBars data={insights.biggestMargins} />
           ) : (
-            <p className="muted">Aun no hay resultados oficiales cargados.</p>
+            <p className="muted">Aún no hay resultados oficiales cargados.</p>
           )}
         </div>
       </div>
 
       <div className="panel stack-md">
         <div className="section-head">
-          <h3>Partidos mas dificiles</h3>
+          <h3>Partidos más difíciles</h3>
           <span>Menor acierto de signo del grupo</span>
         </div>
         {insights.hardestMatches.length > 0 ? (
           <HorizontalBars data={insights.hardestMatches} percent />
         ) : (
-          <p className="muted">Aun no hay resultados oficiales cargados.</p>
+          <p className="muted">Aún no hay resultados oficiales cargados.</p>
         )}
       </div>
     </section>
@@ -550,7 +550,7 @@ function AdminStatsDashboard({ state }: { state: StateResponse }) {
   return (
     <section className="stack-lg">
       <div className="panel">
-        <h2>Estadisticas (Administracion)</h2>
+        <h2>Estadísticas (Administracion)</h2>
         <p className="muted">Vista general del PRODE para control del grupo y seguimiento de actividad.</p>
       </div>
 
@@ -567,7 +567,7 @@ function AdminStatsDashboard({ state }: { state: StateResponse }) {
           <BarChart data={predictionsByGroup} />
         </div>
         <div className="panel stack-md">
-          <div className="section-head"><h3>Resultados oficiales</h3><span>Distribucion de signos</span></div>
+          <div className="section-head"><h3>Resultados oficiales</h3><span>Distribución de signos</span></div>
           <DonutChart
             centerLabel="partidos"
             segments={[
@@ -581,11 +581,11 @@ function AdminStatsDashboard({ state }: { state: StateResponse }) {
 
       <div className="stats-grid">
         <div className="panel stack-md">
-          <div className="section-head"><h3>Participacion por usuario</h3><span>Top por cantidad de predicciones</span></div>
-          {participationBars.length > 0 ? <HorizontalBars data={participationBars} /> : <p className="muted">Aun no hay predicciones.</p>}
+          <div className="section-head"><h3>Participación por usuario</h3><span>Top por cantidad de predicciones</span></div>
+          {participationBars.length > 0 ? <HorizontalBars data={participationBars} /> : <p className="muted">Aún no hay predicciones.</p>}
         </div>
         <div className="panel stack-md">
-          <div className="section-head"><h3>PrecisiÃ³n global del PRODE</h3><span>Predicciones evaluadas</span></div>
+          <div className="section-head"><h3>Precisión global del PRODE</h3><span>Predicciones evaluadas</span></div>
           <DonutChart
             centerLabel="pred."
             segments={[
@@ -683,37 +683,37 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
   if (riskPct >= 35) badges.push('Kamikaze');
   if (outcomePct >= 60) badges.push('Analista');
   if (userRow && rank && rank <= 3) badges.push('Podio');
-  if (totalScored > 0 && exactPct < 5 && outcomePct < 30) badges.push('Pecho frÃ­o');
+  if (totalScored > 0 && exactPct < 5 && outcomePct < 30) badges.push('Pecho frío');
 
   return (
     <section className="stack-lg">
       <div className="panel stack-md">
-        <h2>Estadisticas personales</h2>
+        <h2>Estadísticas personales</h2>
         <p className="muted">
-          Tu dashboard del PRODE: rendimiento, precisiÃ³n, tendencia y comparaciÃ³n con el grupo.
+          Tu dashboard del PRODE: rendimiento, precisión, tendencia y comparación con el grupo.
         </p>
         <div className="detail-grid">
           <div className="detail-card">
             <span className="detail-label">Ranking general</span>
             <strong>{rank ? `#${rank}` : 'Sin ranking'}</strong>
-            <span className="muted compact-text">{userRow ? `${userRow.totalPoints} puntos` : 'AÃºn no hay puntaje'}</span>
+            <span className="muted compact-text">{userRow ? `${userRow.totalPoints} puntos` : 'Aún no hay puntaje'}</span>
           </div>
           <div className="detail-card">
-            <span className="detail-label">Diferencia con el lÃ­der</span>
+            <span className="detail-label">Diferencia con el líder</span>
             <strong>{diffToLeader ?? 0} pts</strong>
-            <span className="muted compact-text">{leader ? `LÃ­der: ${leader.firstName} ${leader.lastName}` : 'Sin lÃ­der aun'}</span>
+            <span className="muted compact-text">{leader ? `Líder: ${leader.firstName} ${leader.lastName}` : 'Sin líder aun'}</span>
           </div>
           <div className="detail-card">
             <span className="detail-label">Probabilidad de ganar</span>
             <strong>{userProb}%</strong>
-            <span className="muted compact-text">Modelo simple de simulaciÃ³n (Monte Carlo)</span>
+            <span className="muted compact-text">Modelo simple de simulación (Monte Carlo)</span>
           </div>
           <div className="detail-card">
             <span className="detail-label">Posiciones ganadas</span>
             <strong>
               {positionDelta == null ? '-' : positionDelta > 0 ? `+${positionDelta}` : String(positionDelta)}
             </strong>
-            <span className="muted compact-text">Comparado con la Ãºltima fecha evaluada.</span>
+            <span className="muted compact-text">Comparado con la última fecha evaluada.</span>
           </div>
         </div>
       </div>
@@ -721,7 +721,7 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
 
       <div className="panel stack-md">
         <div className="section-head">
-          <h3>EvoluciÃ³n del puntaje</h3>
+          <h3>Evolución del puntaje</h3>
           <span>Acumulado por partido con resultado oficial</span>
         </div>
         <UserEvolutionComparisonChart labels={evolutionLabels} users={evolutionUsers} currentUserId={user.id} />
@@ -730,7 +730,7 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
       <div className="stats-grid">
         <div className="panel stack-md">
           <div className="section-head">
-            <h3>Predicciones del prÃ³ximo partido</h3>
+            <h3>Predicciones del próximo partido</h3>
             <span>{nextMatch ? `${nextMatch.homeTeam} vs ${nextMatch.awayTeam}` : 'Sin partidos futuros'}</span>
           </div>
           {nextMatch ? (
@@ -743,7 +743,7 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
                   { label: `Gana ${nextMatch.awayTeam}`, value: analytics.nextMatchDist.away, color: '#ef3100' },
                 ]}
               />
-              <p className="muted">Distribucion de signos pronosticados por el grupo para el proximo partido disponible.</p>
+              <p className="muted">Distribución de signos pronosticados por el grupo para el próximo partido disponible.</p>
             </>
           ) : (
             <p className="muted">No hay partidos futuros para calcular distribucion de predicciones.</p>
@@ -753,7 +753,7 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
         <div className="panel stack-md">
           <div className="section-head">
             <h3>Probabilidad de ganar</h3>
-            <span>Top 8 (simulaciÃ³n)</span>
+            <span>Top 8 (simulación)</span>
           </div>
           <HorizontalBars percent data={montecarlo} />
           <p className="muted">
@@ -770,14 +770,14 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
         </div>
         <div className="detail-grid">
           <div className="detail-card">
-            <span className="detail-label">Riesgo (predicciones unicas)</span>
+            <span className="detail-label">Riesgo (predicciones únicas)</span>
             <strong>{riskPct}%</strong>
-            <span className="muted compact-text">Cuanto mas alto, mas diferente al resto.</span>
+            <span className="muted compact-text">Cuanto más alto, más diferente al resto.</span>
           </div>
           <div className="detail-card">
             <span className="detail-label">Resultados exactos</span>
             <strong>{exactCount}</strong>
-            <span className="muted compact-text">Tu mÃ©trica de "adicto al detalle".</span>
+            <span className="muted compact-text">Tu métrica de "adicto al detalle".</span>
           </div>
           <div className="detail-card">
             <span className="detail-label">Predicciones evaluadas</span>
@@ -800,8 +800,8 @@ export default async function StatsPage() {
     return (
       <section className="stack-lg">
         <div className="panel">
-          <h2>Estadisticas</h2>
-          <p className="muted">Debes iniciar sesion para ver tus estadisticas personales del PRODE.</p>
+          <h2>Estadísticas</h2>
+          <p className="muted">Debes iniciar sesión para ver tus estadísticas personales del PRODE.</p>
           <div className="cta-row">
             <Link className="cta-link" href="/login">Ingresar</Link>
             <Link className="cta-link" href="/leaderboard">Ver tabla</Link>
@@ -817,3 +817,5 @@ export default async function StatsPage() {
 
   return <UserStatsDashboard state={state} user={state.viewer.user} />;
 }
+
+
