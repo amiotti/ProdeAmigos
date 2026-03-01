@@ -24,12 +24,6 @@ function isPredictionEditable(kickoffAt: string, nowMs = Date.now()) {
   return nowMs < kickoffMs - 60 * 60 * 1000;
 }
 
-function hasMatchStarted(kickoffAt: string, nowMs = Date.now()) {
-  const kickoffMs = new Date(kickoffAt).getTime();
-  if (!Number.isFinite(kickoffMs)) return true;
-  return nowMs >= kickoffMs;
-}
-
 export function PredictionsBoard({
   initialState = null,
   registrationAmountArs,
@@ -93,7 +87,7 @@ export function PredictionsBoard({
       groupId: group.id,
       groupName: group.name,
       teams: group.teams,
-      matches: state.db.matches.filter((m) => m.groupId === group.id && !hasMatchStarted(m.kickoffAt, nowMs)).sort(sortMatches),
+      matches: state.db.matches.filter((m) => m.groupId === group.id && isPredictionEditable(m.kickoffAt, nowMs)).sort(sortMatches),
     }));
   }, [state]);
 
@@ -457,7 +451,7 @@ export function PredictionsBoard({
 
       {(viewMode === 'group' ? visibleGroups.length === 0 : visibleDateSections.length === 0) ? (
         <div className="panel">
-          <p className="muted">No hay partidos disponibles para predecir en el filtro actual (solo se muestran partidos futuros).</p>
+          <p className="muted">No hay partidos disponibles para predecir en el filtro actual. Solo se muestran partidos cuya ventana de carga sigue abierta.</p>
         </div>
       ) : null}
     </section>

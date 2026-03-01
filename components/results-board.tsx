@@ -239,9 +239,11 @@ export function ResultsBoard({ initialState = null }: { initialState?: StateResp
           </div>
         </div>
 
-        <button className="btn btn-danger" type="button" onClick={save} disabled={saving || !state.viewer.isAdmin}>
-          {saving ? 'Guardando...' : 'Guardar resultados oficiales'}
-        </button>
+        {state.viewer.isAdmin ? (
+          <button className="btn btn-danger" type="button" onClick={save} disabled={saving}>
+            {saving ? 'Guardando...' : 'Guardar resultados oficiales'}
+          </button>
+        ) : null}
       </div>
 
       {message ? <p className="status">{message}</p> : null}
