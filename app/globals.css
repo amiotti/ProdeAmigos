@@ -211,7 +211,8 @@ select {
   opacity: 0;
   filter: none;
   background: #08080d;
-  transform: scale(0.96);
+  transform: scale(1.12) translateY(1px);
+  transform-origin: center;
 }
 
 .brand-logo-img-light {
