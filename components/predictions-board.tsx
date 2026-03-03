@@ -127,7 +127,7 @@ export function PredictionsBoard({
 
   async function savePredictions(targetMatchId?: string) {
     if (!currentUser) {
-      setMessage('Debes iniciar sesi?n para cargar predicciones.');
+      setMessage('Debes iniciar sesión para cargar predicciones.');
       return;
     }
 
@@ -178,7 +178,7 @@ export function PredictionsBoard({
         locked.length > 0
           ? `Predicciones guardadas. ${locked.length} partido(s) ya est?n cerrados (menos de 1 hora para el inicio) y no se modificaron.`
           : targetMatchId
-            ? 'Predicci?n guardada correctamente. Puedes editarla hasta 1 hora antes del partido.'
+            ? 'Predicción guardada correctamente. Puedes editarla hasta 1 hora antes del partido.'
             : 'Predicciones guardadas correctamente. Puedes editarlas hasta 1 hora antes de cada partido.',
       );
     } catch (error) {
@@ -191,7 +191,7 @@ export function PredictionsBoard({
 
   async function saveGroupPredictions(groupId: string, matchIds: string[]) {
     if (!currentUser) {
-      setMessage('Debes iniciar sesi?n para cargar predicciones.');
+      setMessage('Debes iniciar sesión para cargar predicciones.');
       return;
     }
 
@@ -232,7 +232,7 @@ export function PredictionsBoard({
       const locked = Array.isArray(data.lockedMatches) ? (data.lockedMatches as string[]) : [];
       setMessage(
         locked.length > 0
-          ? `Predicciones del grupo guardadas. ${locked.length} partido(s) ya est?n cerrados y no se modificaron.`
+          ? `Predicciones del grupo guardadas. ${locked.length} partido(s) ya están cerrados y no se modificaron.`
           : 'Predicciones del grupo guardadas correctamente.',
       );
     } catch (error) {
@@ -255,7 +255,7 @@ export function PredictionsBoard({
         throw new Error(data.error || 'No se pudo generar el pago');
       }
       const redirectUrl = data.url as string | undefined;
-      if (!redirectUrl) throw new Error('GalioPay no devolvi? URL de checkout');
+      if (!redirectUrl) throw new Error('GalioPay no devolvió URL de checkout');
       window.location.href = redirectUrl;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'No se pudo iniciar el pago');
@@ -333,7 +333,7 @@ export function PredictionsBoard({
     return (
       <div className="panel stack-md">
         <h3>Predicciones</h3>
-        <p className="muted">Debes iniciar sesi?n para cargar tus pron?sticos. Puedes editar cada partido hasta 1 hora antes del inicio.</p>
+        <p className="muted">Debes iniciar sesión para cargar tus pronósticos. Puedes editar cada partido hasta 1 hora antes del inicio.</p>
         <div className="cta-row">
           <Link className="cta-link" href="/login">
             Ingresar
@@ -360,11 +360,11 @@ export function PredictionsBoard({
       <div className="panel stack-md">
         <h3>Predicciones bloqueadas hasta confirmar pago</h3>
         <p className="muted">
-          Tu usuario tiene estado de inscripci?n <strong>{currentUser.registrationPaymentStatus ?? 'pending'}</strong>. Debes completar y confirmar el pago de <strong>${registrationAmountArs.toLocaleString('es-AR')}</strong> para acceder a la carga de predicciones.
+          Tu usuario tiene estado de inscripción <strong>{currentUser.registrationPaymentStatus ?? 'pending'}</strong>. Debes completar y confirmar el pago de <strong>${registrationAmountArs.toLocaleString('es-AR')}</strong> para acceder a la carga de predicciones.
         </p>
         <div className="cta-row">
           <button className="btn btn-primary" type="button" onClick={startRegistrationPayment} disabled={paying}>
-            {paying ? 'Redirigiendo a GalioPay...' : 'Pagar inscripci?n'}
+            {paying ? 'Redirigiendo a GalioPay...' : 'Pagar inscripción'}
           </button>
           <Link className="cta-link" href="/payment/return">
             Revisar estado del pago
@@ -404,7 +404,7 @@ export function PredictionsBoard({
 
       <div className="panel">
         <p className="muted">
-          Regla de cierre: las predicciones se pueden crear o editar hasta <strong>1 hora antes</strong> del inicio de cada partido. Despu?s del cierre quedan bloqueadas.
+          Regla de cierre: las predicciones se pueden crear o editar hasta <strong>1 hora antes</strong> del inicio de cada partido. Después del cierre quedan bloqueadas.
         </p>
       </div>
 
@@ -412,42 +412,42 @@ export function PredictionsBoard({
 
       {viewMode === 'group'
         ? visibleGroups.map((group) => (
-            <div key={group.groupId} className="panel stack-md">
-              <div className="section-head">
-                <h3>{group.groupName}</h3>
-                <div className="fixture-inline">
-                  <span>{group.matches.length} partidos pendientes</span>
-                  <button
-                    className="btn btn-primary btn-small"
-                    type="button"
-                    onClick={() => saveGroupPredictions(group.groupId, group.matches.map((m) => m.id))}
-                    disabled={savingGroupId === group.groupId || saving}
-                  >
-                    {savingGroupId === group.groupId ? 'Guardando...' : 'Guardar grupo'}
-                  </button>
-                </div>
+          <div key={group.groupId} className="panel stack-md">
+            <div className="section-head">
+              <h3>{group.groupName}</h3>
+              <div className="fixture-inline">
+                <span>{group.matches.length} partidos pendientes</span>
+                <button
+                  className="btn btn-primary btn-small"
+                  type="button"
+                  onClick={() => saveGroupPredictions(group.groupId, group.matches.map((m) => m.id))}
+                  disabled={savingGroupId === group.groupId || saving}
+                >
+                  {savingGroupId === group.groupId ? 'Guardando...' : 'Guardar grupo'}
+                </button>
               </div>
-
-              <div className="teams-chip-row">
-                {group.teams.map((team) => (
-                  <TeamName key={team} teamName={team} linkToTeam className="chip team-chip" />
-                ))}
-              </div>
-
-              <div className="match-list">{group.matches.map((match) => renderMatchCard(match))}</div>
             </div>
-          ))
+
+            <div className="teams-chip-row">
+              {group.teams.map((team) => (
+                <TeamName key={team} teamName={team} linkToTeam className="chip team-chip" />
+              ))}
+            </div>
+
+            <div className="match-list">{group.matches.map((match) => renderMatchCard(match))}</div>
+          </div>
+        ))
         : visibleDateSections.map((section) => (
-            <div key={section.label} className="panel stack-md">
-              <div className="section-head">
-                <h3>{section.label}</h3>
-                <span>{section.matches.length} partidos pendientes</span>
-              </div>
-              <div className="match-list">
-                {section.matches.map((match) => renderMatchCard(match, match._groupName))}
-              </div>
+          <div key={section.label} className="panel stack-md">
+            <div className="section-head">
+              <h3>{section.label}</h3>
+              <span>{section.matches.length} partidos pendientes</span>
             </div>
-          ))}
+            <div className="match-list">
+              {section.matches.map((match) => renderMatchCard(match, match._groupName))}
+            </div>
+          </div>
+        ))}
 
       {(viewMode === 'group' ? visibleGroups.length === 0 : visibleDateSections.length === 0) ? (
         <div className="panel">
