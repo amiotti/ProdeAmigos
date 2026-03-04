@@ -39,8 +39,7 @@ export function UsersPanel({ initialUsers }: { initialUsers: User[] }) {
     }
   }
 
-  async function updatePaymentStatus(userId: string) {
-    const registrationPaymentStatus = paymentDrafts[userId] ?? 'pending';
+  async function updatePaymentStatus(userId: string, registrationPaymentStatus: User['registrationPaymentStatus']) {
     setLoadingId(userId);
     setStatus(null);
     try {
@@ -102,26 +101,21 @@ export function UsersPanel({ initialUsers }: { initialUsers: User[] }) {
                     <div className="inline-actions">
                       <select
                         value={paymentDrafts[user.id] ?? 'pending'}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          const nextStatus = e.target.value as User['registrationPaymentStatus'];
                           setPaymentDrafts((prev) => ({
                             ...prev,
-                            [user.id]: e.target.value as User['registrationPaymentStatus'],
-                          }))
-                        }
+                            [user.id]: nextStatus,
+                          }));
+                          void updatePaymentStatus(user.id, nextStatus);
+                        }}
                         disabled={loadingId === user.id}
                       >
                         <option value="pending">Pendiente</option>
                         <option value="approved">Aprobado</option>
                         <option value="failed">Fallido</option>
                       </select>
-                      <button
-                        className="btn btn-secondary btn-small"
-                        type="button"
-                        onClick={() => updatePaymentStatus(user.id)}
-                        disabled={loadingId === user.id}
-                      >
-                        {loadingId === user.id ? 'Guardando...' : 'Guardar pago'}
-                      </button>
+
                     </div>
                   )}
                 </td>
@@ -148,3 +142,4 @@ export function UsersPanel({ initialUsers }: { initialUsers: User[] }) {
     </section>
   );
 }
+
