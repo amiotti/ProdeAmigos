@@ -1,4 +1,4 @@
-type GalioPayItem = {
+﻿type GalioPayItem = {
   title: string;
   quantity: number;
   unitPrice: number;
@@ -55,7 +55,7 @@ function getGalioConfig() {
     apiKey: runtimeEnv('GALIOPAY_API_KEY'),
     clientId: runtimeEnv('GALIOPAY_CLIENT_ID'),
     appBaseUrl: runtimeEnv('APP_BASE_URL', 'http://localhost:3000'),
-    amount: Number(runtimeEnv('GALIOPAY_REGISTRATION_AMOUNT_ARS', '100')),
+    amount: Number(runtimeEnv('GALIOPAY_REGISTRATION_AMOUNT_ARS', '20000')),
     currencyId: runtimeEnv('GALIOPAY_CURRENCY_ID', 'ARS'),
     title: runtimeEnv('GALIOPAY_REGISTRATION_TITLE', 'Inscripcion PRODE Fase Grupos Mundial 2026'),
   };
@@ -174,4 +174,5 @@ export function getGalioWebhookAuthConfig() {
     secret: process.env.GALIOPAY_WEBHOOK_SECRET?.trim() || '',
   };
 }
+
 

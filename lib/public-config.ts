@@ -1,4 +1,4 @@
-function runtimeEnv(baseName: string, fallback?: string) {
+﻿function runtimeEnv(baseName: string, fallback?: string) {
   const isProd = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
   const scopedName = `${baseName}_${isProd ? 'PROD' : 'LOCAL'}`;
   const scopedValue = process.env[scopedName];
@@ -8,7 +8,6 @@ function runtimeEnv(baseName: string, fallback?: string) {
 }
 
 export function getRegistrationAmountArs() {
-  const value = Number(runtimeEnv('GALIOPAY_REGISTRATION_AMOUNT_ARS', '100'));
-  return Number.isFinite(value) ? value : 100;
+  const value = Number(runtimeEnv('GALIOPAY_REGISTRATION_AMOUNT_ARS', '20000'));
+  return Number.isFinite(value) ? value : 20000;
 }
-

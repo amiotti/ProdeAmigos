@@ -1,10 +1,11 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { cookies } from 'next/headers';
 
 import { TeamName } from '@/components/team-name';
 import { getSessionCookieName, verifySession } from '@/lib/auth';
 import { formatDateTimeArgentina } from '@/lib/datetime';
 import { getHomePageState } from '@/lib/db';
+import { getRegistrationAmountArs } from '@/lib/public-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +13,20 @@ export default async function InicioPage() {
   const token = cookies().get(getSessionCookieName())?.value ?? null;
   const session = verifySession(token);
   const state = await getHomePageState();
+  const registrationAmountArs = getRegistrationAmountArs();
+  const paidParticipants = state.paidParticipants;
+  const prizePool = paidParticipants * registrationAmountArs;
+  const prizes = [
+    { place: '1°', pct: 20 },
+    { place: '2°', pct: 15 },
+    { place: '3°', pct: 10 },
+    { place: '4°', pct: 5 },
+    { place: '5°', pct: 1 },
+  ].map((item) => ({
+    ...item,
+    amount: Math.round((prizePool * item.pct) / 100),
+  }));
+
   const totalMatches = state.summary.matches;
   const resultsLoaded = state.summary.matchesWithOfficialResult;
   const loadProgressPct = totalMatches > 0 ? Math.round((resultsLoaded / totalMatches) * 100) : 0;
@@ -28,17 +43,21 @@ export default async function InicioPage() {
           <h2 className="hero-title">PRODE Mundial 2026</h2>
           <p className="muted">
             Registro de participantes, predicciones por partido, resultados oficiales y tabla de posiciones para el
-            torneo de 48 selecciones. Habrá importantes premios para el Top 5 del PRODE una vez finalizada la fase de
-            grupos.
+            torneo de 48 selecciones. El pozo de premios se calcula automáticamente según la cantidad de inscriptos con
+            pago aprobado.
           </p>
           <div className="panel prizes-panel">
             <h3>Premios Top 5</h3>
+            <p className="muted compact-text">
+              Pozo actual: <strong>${prizePool.toLocaleString('es-AR')}</strong> | Inscriptos pagos:{' '}
+              <strong>{paidParticipants}</strong> | Inscripción: <strong>${registrationAmountArs.toLocaleString('es-AR')}</strong>
+            </p>
             <ol className="rules-list">
-              <li>1° Premio: $2000000</li>
-              <li>2° Premio: $500000</li>
-              <li>3° Premio: Cena para 2 personas en La Canti</li>
-              <li>4° Premio: Una OC para Mercadito Gala por $50000</li>
-              <li>5° Premio: Una remera de Perfil</li>
+              {prizes.map((prize) => (
+                <li key={prize.place}>
+                  {prize.place} premio: ${prize.amount.toLocaleString('es-AR')} ({prize.pct}% del pozo)
+                </li>
+              ))}
             </ol>
           </div>
           <div className="cta-row">
@@ -84,6 +103,11 @@ export default async function InicioPage() {
             puntos por ganador o empate.
           </p>
           <div className="detail-grid">
+            <div className="detail-card">
+              <span className="detail-label">Inscriptos pagos</span>
+              <strong>{paidParticipants}</strong>
+              <span className="muted compact-text">Solo usuarios con pago aprobado. El admin no cuenta.</span>
+            </div>
             <div className="detail-card">
               <span className="detail-label">Partidos del torneo</span>
               <strong>{totalMatches}</strong>

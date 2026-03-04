@@ -825,6 +825,9 @@ export async function getHomePageState() {
     pointsConfig: core.db.pointsConfig,
     matches: core.db.matches,
     leaderboard: core.leaderboard,
+    paidParticipants: core.db.users.filter(
+      (user) => user.role !== 'admin' && user.registrationPaymentStatus === 'approved',
+    ).length,
   };
 }
 
@@ -908,6 +911,7 @@ export async function getPredictionsScreenState(viewerToken?: string | null): Pr
     },
   };
 }
+
 
 
 
