@@ -17,13 +17,13 @@ export default async function InicioPage() {
   const paidParticipants = state.paidParticipants;
   const prizePool = paidParticipants * registrationAmountArs;
   const prizes = [
-    { place: '1°', pct: 20 },
-    { place: '2°', pct: 15 },
-    { place: '3°', pct: 10 },
-    { place: '4°', pct: 5 },
-    { place: '5°', pct: 1 },
+    { place: '1°' as const, pct: 20 },
+    { place: '2°' as const, pct: 15 },
+    { place: '3°' as const, pct: 10 },
+    { place: '4°' as const, pct: 5 },
+    { place: '5°' as const, pct: 1 },
   ].map((item) => ({
-    ...item,
+    place: item.place,
     amount: Math.round((prizePool * item.pct) / 100),
   }));
 
@@ -43,19 +43,15 @@ export default async function InicioPage() {
           <h2 className="hero-title">PRODE Mundial 2026</h2>
           <p className="muted">
             Registro de participantes, predicciones por partido, resultados oficiales y tabla de posiciones para el
-            torneo de 48 selecciones. El pozo de premios se calcula automáticamente según la cantidad de inscriptos con
-            pago aprobado.
+            torneo de 48 selecciones. Los premios del Top 5 se actualizan automáticamente según la cantidad de
+            inscriptos con pago aprobado.
           </p>
           <div className="panel prizes-panel">
             <h3>Premios Top 5</h3>
-            <p className="muted compact-text">
-              Pozo actual: <strong>${prizePool.toLocaleString('es-AR')}</strong> | Inscriptos pagos:{' '}
-              <strong>{paidParticipants}</strong> | Inscripción: <strong>${registrationAmountArs.toLocaleString('es-AR')}</strong>
-            </p>
             <ol className="rules-list">
               {prizes.map((prize) => (
                 <li key={prize.place}>
-                  {prize.place} premio: ${prize.amount.toLocaleString('es-AR')} ({prize.pct}% del pozo)
+                  {prize.place} premio: ${prize.amount.toLocaleString('es-AR')}
                 </li>
               ))}
             </ol>
@@ -103,11 +99,6 @@ export default async function InicioPage() {
             puntos por ganador o empate.
           </p>
           <div className="detail-grid">
-            <div className="detail-card">
-              <span className="detail-label">Inscriptos pagos</span>
-              <strong>{paidParticipants}</strong>
-              <span className="muted compact-text">Solo usuarios con pago aprobado. El admin no cuenta.</span>
-            </div>
             <div className="detail-card">
               <span className="detail-label">Partidos del torneo</span>
               <strong>{totalMatches}</strong>
