@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { cookies } from 'next/headers';
 
 import { getSessionCookieName } from '@/lib/auth';
@@ -6,7 +6,7 @@ import { getUserFromSessionToken, markUserRegistrationPaymentApproved } from '@/
 import { getGalioPayment, isGalioApprovedStatus, isValidGalioRegistrationPaymentForUser } from '@/lib/galiopay';
 
 type PaymentReturnPageProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
 function firstParam(value: string | string[] | undefined) {
@@ -29,7 +29,7 @@ function getText(status: string | undefined) {
   if (status === 'success' || status === 'approved') {
     return {
       title: 'Retorno de pago',
-      description: 'Se recibió la confirmación del checkout. Validaremos el pago con Galio antes de aprobar la inscripción.',
+      description: 'Se recibiÃ³ la confirmaciÃ³n del checkout. Validaremos el pago con Galio antes de aprobar la inscripciÃ³n.',
     };
   }
   return {
@@ -39,10 +39,11 @@ function getText(status: string | undefined) {
 }
 
 export default async function PaymentReturnPage({ searchParams }: PaymentReturnPageProps) {
-  const status = firstParam(searchParams?.status);
-  const provider = firstParam(searchParams?.provider);
-  const galioPaymentId = firstParam(searchParams?.galio_payment_id);
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const status = firstParam(resolvedSearchParams?.status);
+  const provider = firstParam(resolvedSearchParams?.provider);
+  const galioPaymentId = firstParam(resolvedSearchParams?.galio_payment_id);
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   const sessionUser = await getUserFromSessionToken(token);
 
   let approvedNow = false;
@@ -78,20 +79,20 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
         <h2>{officialApproved ? 'Pago aprobado' : text.title}</h2>
         <p className="muted">
           {officialApproved
-            ? 'La inscripción fue validada correctamente contra Galio Pay. Ya puedes continuar en la app.'
+            ? 'La inscripciÃ³n fue validada correctamente contra Galio Pay. Ya puedes continuar en la app.'
             : text.description}
         </p>
 
         {approvedNow ? <p className="status">Pago aprobado y asociado a tu usuario.</p> : null}
         {receiptNumber ? (
           <p className="muted">
-            N° de comprobante: <strong>{receiptNumber}</strong>
+            NÂ° de comprobante: <strong>{receiptNumber}</strong>
           </p>
         ) : null}
 
         {sessionUser && sessionUser.role !== 'admin' ? (
           <p className="muted">
-            Estado de inscripción actual:{' '}
+            Estado de inscripciÃ³n actual:{' '}
             <strong>
               {officialApproved || sessionUser.registrationPaymentStatus === 'approved' ? 'approved' : sessionUser.registrationPaymentStatus ?? 'pending'}
             </strong>
@@ -100,18 +101,18 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
 
         {provider === 'galio' && queryLooksApproved && !officialApproved ? (
           <p className="status">
-            El retorno indica pago exitoso, pero la inscripción no se aprobará hasta validar el pago en Galio Pay.
+            El retorno indica pago exitoso, pero la inscripciÃ³n no se aprobarÃ¡ hasta validar el pago en Galio Pay.
           </p>
         ) : null}
 
         {provider === 'galio' && galioPaymentFetchError ? (
-          <p className="status">No pudimos validar el pago automáticamente con Galio. Revisa el estado e intenta nuevamente.</p>
+          <p className="status">No pudimos validar el pago automÃ¡ticamente con Galio. Revisa el estado e intenta nuevamente.</p>
         ) : null}
 
         <div className="cta-row">
           {shouldShowLogin ? (
             <Link className="cta-link" href="/login">
-              Iniciar sesión
+              Iniciar sesiÃ³n
             </Link>
           ) : null}
           <Link className="cta-link" href="/profile">
@@ -125,3 +126,6 @@ export default async function PaymentReturnPage({ searchParams }: PaymentReturnP
     </section>
   );
 }
+
+
+

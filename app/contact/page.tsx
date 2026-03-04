@@ -11,7 +11,7 @@ export const metadata = {
 };
 
 export default async function ContactPage() {
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   const user = await getUserFromSessionToken(token);
   const backHref = user ? '/inicio' : '/';
 
@@ -77,3 +77,4 @@ export default async function ContactPage() {
     </section>
   );
 }
+

@@ -10,7 +10,7 @@ import { getRegistrationAmountArs } from '@/lib/public-config';
 export const dynamic = 'force-dynamic';
 
 export default async function InicioPage() {
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   const session = verifySession(token);
   const state = await getHomePageState();
   const registrationAmountArs = getRegistrationAmountArs();
@@ -146,3 +146,4 @@ export default async function InicioPage() {
     </section>
   );
 }
+

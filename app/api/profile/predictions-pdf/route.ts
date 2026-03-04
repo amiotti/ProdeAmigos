@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 import { getSessionCookieName } from '@/lib/auth';
@@ -89,10 +89,10 @@ function buildSimplePdf(lines: string[]) {
 
 export async function GET() {
   try {
-    const token = cookies().get(getSessionCookieName())?.value ?? null;
+    const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
     const user = await getUserFromSessionToken(token);
     if (!user) {
-      return NextResponse.json({ ok: false, error: 'Debes iniciar sesión.' }, { status: 401 });
+      return NextResponse.json({ ok: false, error: 'Debes iniciar sesiÃ³n.' }, { status: 401 });
     }
 
     const state = await getPredictionsScreenState(token);
@@ -140,3 +140,4 @@ export async function GET() {
     return NextResponse.json({ ok: false, error: message }, { status: 400 });
   }
 }
+

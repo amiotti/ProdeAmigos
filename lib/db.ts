@@ -263,6 +263,14 @@ async function queryContactMessagesOnly() {
   return data.prode_contact_messages ?? [];
 }
 
+async function queryNewContactMessagesCountOnly() {
+  const db = getInstantAdminDb();
+  const data = (await db.query({
+    prode_contact_messages: { $: { where: { status: 'new' } } },
+  })) as InstantQueryResult;
+  return (data.prode_contact_messages ?? []).length;
+}
+
 async function queryOfficialResultsOnly() {
   const db = getInstantAdminDb();
   const data = (await db.query({ prode_official_results: {} })) as InstantQueryResult;
@@ -827,6 +835,11 @@ export async function listContactMessages(): Promise<ContactMessage[]> {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
+export async function getNewContactMessagesCount(): Promise<number> {
+  await ensureBaseData();
+  return queryNewContactMessagesCountOnly();
+}
+
 export async function adminUpdateContactMessageStatus(
   messageId: string,
   status: ContactMessageStatus,
@@ -1022,6 +1035,7 @@ export async function getPredictionsScreenState(viewerToken?: string | null): Pr
     },
   };
 }
+
 
 
 

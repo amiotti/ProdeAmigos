@@ -1,11 +1,11 @@
-import { cookies } from 'next/headers';
+﻿import { cookies } from 'next/headers';
 
 import { getSessionCookieName } from '@/lib/auth';
 import { deleteUserAccount, getUserFromSessionToken, updateUserProfile } from '@/lib/db';
 import { assertSameOriginForMutation, noStoreJson } from '@/lib/security';
 
 export async function GET() {
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   const user = await getUserFromSessionToken(token);
   if (!user) {
     return noStoreJson({ ok: false, error: 'No autenticado' }, { status: 401 });
@@ -19,7 +19,7 @@ export async function PATCH(request: Request) {
     const originError = assertSameOriginForMutation(request);
     if (originError) return originError;
 
-    const token = cookies().get(getSessionCookieName())?.value ?? null;
+    const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
     const viewer = await getUserFromSessionToken(token);
     if (!viewer) {
       return noStoreJson({ ok: false, error: 'No autenticado' }, { status: 401 });
@@ -53,7 +53,7 @@ export async function DELETE(request: Request) {
     const originError = assertSameOriginForMutation(request);
     if (originError) return originError;
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get(getSessionCookieName())?.value ?? null;
     const viewer = await getUserFromSessionToken(token);
     if (!viewer) {
@@ -68,3 +68,4 @@ export async function DELETE(request: Request) {
     return noStoreJson({ ok: false, error: message }, { status: 400 });
   }
 }
+

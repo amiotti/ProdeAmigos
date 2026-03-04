@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -7,8 +7,8 @@ import { getSessionCookieName, verifySession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-export default function LandingPage() {
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+export default async function LandingPage() {
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   if (verifySession(token)) {
     redirect('/inicio');
   }
@@ -26,26 +26,26 @@ export default function LandingPage() {
         <div className="landing-panel landing-main">
           <p className="landing-kicker">PRODE MUNDIAL FIFA 2026</p>
           <h2 className="landing-title">
-            PARTICIPA DEL <span>PRODE LBB</span> 🍺
+            PARTICIPA DEL <span>PRODE LBB</span> ðŸº
           </h2>
           <p className="landing-copy">
-            Registrate, pagá la prata (no barrani) y cargá pronósticos partido por partido. El ranking se actualiza
-            automáticamente cuando se cargan los resultados oficiales. Así evitamos acomodos y excusas 😂
+            Registrate, pagÃ¡ la prata (no barrani) y cargÃ¡ pronÃ³sticos partido por partido. El ranking se actualiza
+            automÃ¡ticamente cuando se cargan los resultados oficiales. AsÃ­ evitamos acomodos y excusas ðŸ˜‚
           </p>
 
           <div className="landing-cta-row">
             <Link className="landing-cta-primary" href="/login">
-              Iniciar sesión / Registrarse
+              Iniciar sesiÃ³n / Registrarse
             </Link>
             <Link className="landing-cta-secondary" href="/leaderboard">
-              Ver tabla pública
+              Ver tabla pÃºblica
             </Link>
           </div>
 
           <div className="landing-badges">
             <span className="landing-badge">Fixture completo</span>
             <span className="landing-badge">Predicciones por grupo</span>
-            <span className="landing-badge">Estadísticas</span>
+            <span className="landing-badge">EstadÃ­sticas</span>
             <span className="landing-badge">Ranking en vivo</span>
           </div>
         </div>
@@ -59,7 +59,7 @@ export default function LandingPage() {
             </div>
             <div className="landing-mini-card">
               <span className="landing-mini-label">Modo de juego</span>
-              <strong>Predicción editable</strong>
+              <strong>PredicciÃ³n editable</strong>
               <small>hasta 1 hora antes del partido</small>
             </div>
             <div className="landing-mini-card">
@@ -73,3 +73,5 @@ export default function LandingPage() {
     </section>
   );
 }
+
+

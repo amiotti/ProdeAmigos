@@ -7,7 +7,7 @@ import { assertSameOriginForMutation, noStoreJson } from '@/lib/security';
 import type { ContactMessageStatus } from '@/lib/types';
 
 async function requireAdmin() {
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   const user = await getUserFromSessionToken(token);
   if (!user || user.role !== 'admin') return null;
   return user;
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       return noStoreJson({ ok: false, error: 'Demasiados envíos. Intenta nuevamente en un rato.' }, { status: 429 });
     }
 
-    const token = cookies().get(getSessionCookieName())?.value ?? null;
+    const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
     const user = await getUserFromSessionToken(token);
     const body = (await request.json()) as {
       name?: string;
@@ -78,3 +78,4 @@ export async function PATCH(request: Request) {
     return noStoreJson({ ok: false, error: message }, { status: 400 });
   }
 }
+

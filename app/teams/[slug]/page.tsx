@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+﻿import { notFound } from 'next/navigation';
 
 import { FlagBadge } from '@/components/flag-badge';
 import { TeamName } from '@/components/team-name';
@@ -46,7 +46,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
           <div>
             <h2>{team.name}</h2>
             <p className="muted">
-              {team.confederation} · Grupo {group?.id ?? '-'}
+              {team.confederation} Â· Grupo {group?.id ?? '-'}
             </p>
           </div>
         </div>
@@ -56,7 +56,7 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
 
         <div className="detail-grid">
           <div className="detail-card">
-            <span className="detail-label">Índice de fuerza (app)</span>
+            <span className="detail-label">Ãndice de fuerza (app)</span>
             <strong>{team.fifaStrength}</strong>
           </div>
           <div className="detail-card">
@@ -80,8 +80,8 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
             </strong>
           </div>
           <div className="detail-card">
-            <span className="detail-label">Condición deportiva</span>
-            <strong>{team.isPlaceholder ? 'Pendiente de definición' : 'Selección confirmada'}</strong>
+            <span className="detail-label">CondiciÃ³n deportiva</span>
+            <strong>{team.isPlaceholder ? 'Pendiente de definiciÃ³n' : 'SelecciÃ³n confirmada'}</strong>
           </div>
           <div className="detail-card">
             <span className="detail-label">Objetivo estimado</span>
@@ -111,13 +111,13 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
         </p>
         {wiki ? (
           <p className="muted">
-            Fuente enciclopédica:{' '}
+            Fuente enciclopÃ©dica:{' '}
             <a className="inline-link" href={wiki.pageUrl} target="_blank" rel="noreferrer">
               Wikipedia
             </a>
           </p>
         ) : (
-          <p className="muted">No se pudo cargar Wikipedia en este momento; se muestra una síntesis deportiva local.</p>
+          <p className="muted">No se pudo cargar Wikipedia en este momento; se muestra una sÃ­ntesis deportiva local.</p>
         )}
       </div>
 
@@ -125,15 +125,15 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
         <h3>Noticias</h3>
         {teamNewsUrl ? (
           <p className="muted">
-            Podés seguir las últimas noticias de este equipo{' '}
+            PodÃ©s seguir las Ãºltimas noticias de este equipo{' '}
             <a className="inline-link" href={teamNewsUrl} target="_blank" rel="noreferrer">
-              aquí
+              aquÃ­
             </a>
             .
           </p>
         ) : (
           <p className="muted">
-            Esta selección aún no tiene una página oficial de noticias disponible porque su cupo todavía no está
+            Esta selecciÃ³n aÃºn no tiene una pÃ¡gina oficial de noticias disponible porque su cupo todavÃ­a no estÃ¡
             definido.
           </p>
         )}
@@ -186,4 +186,5 @@ export default async function TeamDetailPage({ params }: TeamDetailPageProps) {
     </section>
   );
 }
+
 

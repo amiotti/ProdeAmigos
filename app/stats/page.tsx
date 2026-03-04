@@ -793,7 +793,7 @@ function UserStatsDashboard({ state, user }: { state: StateResponse; user: User 
 }
 
 export default async function StatsPage() {
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   const state = await getState(token);
 
   if (!state.viewer.isAuthenticated || !state.viewer.user) {
@@ -817,5 +817,6 @@ export default async function StatsPage() {
 
   return <UserStatsDashboard state={state} user={state.viewer.user} />;
 }
+
 
 

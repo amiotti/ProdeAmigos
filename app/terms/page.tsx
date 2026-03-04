@@ -20,8 +20,8 @@ export default function TermsPage() {
           pagar la inscripción o utilizar la plataforma aceptás estas condiciones.
         </p>
         <p className="muted">
-          La plataforma presta un servicio digital de organización y gestión de pronósticos deportivos entre usuarios
-          registrados. No constituye una casa de apuestas ni ofrece juego de azar regulado.
+          La plataforma constituye una competencia recreativa de pronósticos deportivos basada en la habilidad y
+          análisis de los participantes, y no un sistema de apuestas ni juego de azar regulado.
         </p>
       </div>
 
@@ -36,6 +36,7 @@ export default function TermsPage() {
         <h3>2. Elegibilidad y cuentas</h3>
         <ul className="list">
           <li>La participación está reservada a personas mayores de 18 años con capacidad legal suficiente.</li>
+          <li>Está prohibido el uso del servicio por menores de 18 años.</li>
           <li>Cada cuenta es personal e intransferible. No se admite la suplantación de identidad ni la apertura de cuentas múltiples para una misma persona.</li>
           <li>El usuario debe mantener actualizados sus datos de contacto y datos bancarios o alias para eventuales premios.</li>
         </ul>
@@ -43,7 +44,8 @@ export default function TermsPage() {
         <h3>3. Inscripción, pagos y destino de fondos</h3>
         <ul className="list">
           <li>La inscripción se considera efectiva cuando el pago es aprobado por la plataforma de cobro o validado manualmente por el administrador.</li>
-          <li>Los fondos de inscripción pueden destinarse a acceso completo a la plataforma, premios, mantenimiento de base de datos, dominio, hosting, soporte y gastos operativos.</li>
+          <li>El pago de inscripción corresponde principalmente al acceso al servicio digital provisto por la plataforma.</li>
+          <li>Una parte de los fondos puede destinarse a premios, costos operativos, infraestructura tecnológica y mantenimiento del sistema.</li>
           <li>El usuario reconoce que el monto de inscripción no se asigna en forma exclusiva a premios, salvo que el organizador comunique expresamente otra modalidad.</li>
           <li>Los pagos se procesan a través de Galio Pay o del medio de pago que la organización informe como válido en cada momento.</li>
         </ul>
@@ -76,7 +78,8 @@ export default function TermsPage() {
         <ul className="list">
           <li>La plataforma puede operar con esquema de premios top 5 u otro esquema que el organizador publique antes del inicio del torneo.</li>
           <li>Los premios en dinero, órdenes de compra, cenas, indumentaria u otros beneficios están sujetos a disponibilidad y a las reglas específicas anunciadas por el organizador.</li>
-          <li>El monto efectivo de premios puede variar según la cantidad de participantes, gastos operativos, costos de plataforma y modalidad comercial elegida.</li>
+          <li>Los premios anunciados corresponden a una estimación basada en la cantidad proyectada de participantes.</li>
+          <li>El monto final de premios podrá variar en función de la cantidad efectiva de inscriptos, costos operativos, comisiones de medios de pago y mantenimiento de la plataforma.</li>
           <li>La organización puede reemplazar premios no monetarios por otros de valor equivalente o similar, cuando existan causas justificadas.</li>
         </ul>
 
@@ -92,15 +95,23 @@ export default function TermsPage() {
           <li>La plataforma se ofrece bajo criterio de disponibilidad razonable. Pueden existir interrupciones por mantenimiento, fallas de terceros, problemas de conectividad o causas de fuerza mayor.</li>
           <li>La organización no garantiza disponibilidad continua, ausencia absoluta de errores ni compatibilidad con todos los navegadores o dispositivos.</li>
           <li>La responsabilidad del organizador se limita, en la máxima medida permitida por la ley aplicable, al valor efectivamente abonado por el usuario para la edición vigente del torneo.</li>
+          <li>El organizador no será responsable por cancelaciones, cambios de calendario, suspensiones de partidos o alteraciones del torneo organizadas por FIFA, federaciones deportivas o autoridades competentes.</li>
         </ul>
 
-        <h3>10. Propiedad intelectual y contenidos</h3>
+        <h3>10. Pagos y premios</h3>
+        <ul className="list">
+          <li>El organizador actúa como administrador de la plataforma tecnológica y no como intermediario financiero.</li>
+          <li>Los premios se distribuyen conforme al ranking publicado y a las reglas del torneo.</li>
+          <li>El organizador no será responsable por disputas personales, transferencias externas o acuerdos privados entre participantes.</li>
+        </ul>
+
+        <h3>11. Propiedad intelectual y contenidos</h3>
         <ul className="list">
           <li>El software, diseño, marca del servicio, textos originales, base de datos estructurada y desarrollos propios pertenecen a sus titulares y no pueden copiarse, revenderse o explotarse sin autorización.</li>
           <li>Los nombres de equipos, marcas, escudos o referencias deportivas pertenecen a sus respectivos titulares y se utilizan con fines descriptivos e informativos.</li>
         </ul>
 
-        <h3>11. Ley aplicable y jurisdicción</h3>
+        <h3>12. Ley aplicable y jurisdicción</h3>
         <ul className="list">
           <li>Estos Términos se rigen por las leyes de la República Argentina.</li>
           <li>En la medida permitida por la normativa aplicable, cualquier controversia será sometida a los tribunales ordinarios con jurisdicción en la Ciudad Autónoma de Buenos Aires, sin perjuicio de los derechos del consumidor que resulten inderogables.</li>

@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+﻿import { cookies } from 'next/headers';
 
 import { getSessionCookieName } from '@/lib/auth';
 import { getUserFromSessionToken } from '@/lib/db';
@@ -13,20 +13,20 @@ export async function POST(request: Request) {
     const originError = assertSameOriginForMutation(request);
     if (originError) return originError;
 
-    const token = cookies().get(getSessionCookieName())?.value ?? null;
+    const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
     const user = await getUserFromSessionToken(token);
 
     if (!user) {
-      return noStoreJson({ ok: false, error: 'Debes iniciar sesión para generar el pago' }, { status: 401 });
+      return noStoreJson({ ok: false, error: 'Debes iniciar sesiÃ³n para generar el pago' }, { status: 401 });
     }
     if (user.role === 'admin') {
-      return noStoreJson({ ok: false, error: 'El administrador no requiere pago de inscripción' }, { status: 400 });
+      return noStoreJson({ ok: false, error: 'El administrador no requiere pago de inscripciÃ³n' }, { status: 400 });
     }
 
     const ip = getClientIdentifier(request);
     const limit = checkRateLimit(`paylink:${user.id}:${ip}`, { limit: 12, windowMs: 10 * 60 * 1000 });
     if (!limit.ok) {
-      return noStoreJson({ ok: false, error: 'Demasiados intentos de generar pagos. Intenta más tarde.' }, { status: 429 });
+      return noStoreJson({ ok: false, error: 'Demasiados intentos de generar pagos. Intenta mÃ¡s tarde.' }, { status: 429 });
     }
 
     const result = await createGalioRegistrationPaymentLink({
@@ -41,3 +41,4 @@ export async function POST(request: Request) {
     return noStoreJson({ ok: false, error: message }, { status: 400 });
   }
 }
+

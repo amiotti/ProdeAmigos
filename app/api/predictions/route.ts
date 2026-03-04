@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+﻿import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 
 import { getSessionCookieName } from '@/lib/auth';
@@ -14,10 +14,10 @@ export async function POST(request: Request) {
       predictions?: Array<{ matchId: string; homeGoals: number; awayGoals: number }>;
     };
 
-    const token = cookies().get(getSessionCookieName())?.value ?? null;
+    const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
     const user = await getUserFromSessionToken(token);
     if (!user) {
-      return noStoreJson({ ok: false, error: 'Debes iniciar sesión para cargar predicciones' }, { status: 401 });
+      return noStoreJson({ ok: false, error: 'Debes iniciar sesiÃ³n para cargar predicciones' }, { status: 401 });
     }
 
     const result = await savePredictions(user.id, body.predictions ?? []);
@@ -33,3 +33,4 @@ export async function POST(request: Request) {
     return noStoreJson({ ok: false, error: message }, { status: 400 });
   }
 }
+

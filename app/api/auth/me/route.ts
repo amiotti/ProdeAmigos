@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 import { getSessionCookieName, getSessionCookieOptions, signSession } from '@/lib/auth';
@@ -8,7 +8,7 @@ import { noStoreJson } from '@/lib/security';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get(getSessionCookieName())?.value ?? null;
   const user = await getUserFromSessionToken(token);
   if (user) {
@@ -21,4 +21,5 @@ export async function GET() {
     isAdmin: user?.role === 'admin',
   });
 }
+
 

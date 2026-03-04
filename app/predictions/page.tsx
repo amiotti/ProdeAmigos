@@ -8,7 +8,7 @@ import { getRegistrationAmountArs } from '@/lib/public-config';
 export const dynamic = 'force-dynamic';
 
 export default async function PredictionsPage() {
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   const state = await getPredictionsScreenState(token);
   const registrationAmountArs = getRegistrationAmountArs();
 
@@ -25,3 +25,4 @@ export default async function PredictionsPage() {
     </section>
   );
 }
+

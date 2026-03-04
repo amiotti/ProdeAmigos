@@ -13,6 +13,7 @@ export function RegisterForm({ registrationAmountArs }: { registrationAmountArs:
   const [bankInfo, setBankInfo] = useState('');
   const [password, setPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +23,11 @@ export function RegisterForm({ registrationAmountArs }: { registrationAmountArs:
       document.activeElement.blur();
     }
     if (!acceptedTerms) {
-      setStatus('Debes aceptar los Términos y Condiciones para registrarte.');
+      setStatus('Debes aceptar los T&C para registrarte.');
+      return;
+    }
+    if (!acceptedPrivacy) {
+      setStatus('Debes aceptar la Política de Privacidad para registrarte.');
       return;
     }
 
@@ -100,14 +105,29 @@ export function RegisterForm({ registrationAmountArs }: { registrationAmountArs:
           required
         />
         <span className="auth-legal-text">
-          Acepto los {' '}
+          Acepto los{' '}
           <Link href="/terms" className="auth-legal-link" target="_blank" rel="noreferrer">
             T&amp;C
           </Link>
         </span>
       </label>
 
-      <button className="btn btn-primary" disabled={loading || !acceptedTerms} type="submit">
+      <label className="auth-legal-check">
+        <input
+          type="checkbox"
+          checked={acceptedPrivacy}
+          onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+          required
+        />
+        <span className="auth-legal-text">
+          Acepto la{' '}
+          <Link href="/privacy" className="auth-legal-link" target="_blank" rel="noreferrer">
+            Política de Privacidad
+          </Link>
+        </span>
+      </label>
+
+      <button className="btn btn-primary" disabled={loading || !acceptedTerms || !acceptedPrivacy} type="submit">
         {loading ? 'Creando usuario...' : 'Registrarme'}
       </button>
 

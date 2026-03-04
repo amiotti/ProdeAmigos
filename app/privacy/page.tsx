@@ -57,24 +57,41 @@ export default function PrivacyPage() {
           <li>No se comercializan datos personales con fines ajenos al servicio.</li>
         </ul>
 
-        <h3>6. Derechos del titular</h3>
+        <h3>6. Cookies y analítica</h3>
+        <ul className="list">
+          <li>La plataforma puede utilizar cookies técnicas y analíticas necesarias para el funcionamiento del servicio.</li>
+          <li>Estas cookies pueden incluir herramientas de analítica para medir uso, rendimiento y estabilidad de la aplicación.</li>
+        </ul>
+
+        <h3>7. Derechos del titular</h3>
         <ul className="list">
           <li>Podés solicitar acceso, rectificación, actualización o supresión de tus datos, dentro de los límites legales aplicables.</li>
           <li>También podés pedir información sobre la finalidad del tratamiento, la existencia de bases de datos y los terceros que intervengan en la operación.</li>
           <li>Para ejercer tus derechos, la organización podrá requerir validaciones razonables de identidad.</li>
         </ul>
 
-        <h3>7. Seguridad</h3>
+        <h3>8. Seguridad</h3>
         <ul className="list">
           <li>Se aplican medidas técnicas y organizativas razonables para proteger la información contra acceso no autorizado, alteración, pérdida o divulgación.</li>
           <li>La organización no puede garantizar seguridad absoluta frente a ataques sofisticados o eventos ajenos a su control, pero sí un estándar diligente de protección.</li>
         </ul>
 
-        <h3>8. Contacto y reclamos</h3>
+        <h3>9. Contacto y reclamos</h3>
         <ul className="list">
           <li>El usuario podrá canalizar consultas o reclamos por los medios de contacto que informe la organización.</li>
           <li>Si el tratamiento involucrara derechos protegidos por la legislación argentina, se respetarán los mecanismos previstos en la normativa de protección de datos personales.</li>
         </ul>
+
+        <h3>10. Ley 25.326</h3>
+        <p className="muted">
+          De conformidad con la Ley 25.326, el titular de los datos personales tiene la facultad de ejercer el derecho
+          de acceso a los mismos en forma gratuita a intervalos no inferiores a seis meses, salvo que se acredite un
+          interés legítimo.
+        </p>
+        <p className="muted">
+          La Agencia de Acceso a la Información Pública, órgano de control de la Ley 25.326, tiene la atribución de
+          atender denuncias y reclamos vinculados al incumplimiento de las normas sobre protección de datos personales.
+        </p>
       </div>
     </section>
   );

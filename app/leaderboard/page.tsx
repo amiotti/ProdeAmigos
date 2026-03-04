@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { cookies } from 'next/headers';
 
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function LeaderboardPage() {
   const state = await getLeaderboardPageState();
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   const isLoggedIn = Boolean(verifySession(token));
 
   return (
@@ -18,7 +18,7 @@ export default async function LeaderboardPage() {
       {!isLoggedIn ? (
         <>
           <Link className="public-back-btn" href="/" aria-label="Volver a la landing">
-            ←
+            â†
           </Link>
           <div className="public-theme-toggle">
             <ThemeToggle />
@@ -39,4 +39,5 @@ export default async function LeaderboardPage() {
     </div>
   );
 }
+
 

@@ -9,7 +9,7 @@ import { SessionBadge } from '@/components/session-badge';
 import { SessionIdleGuard } from '@/components/session-idle-guard';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { getSessionCookieName, verifySession } from '@/lib/auth';
-import { getUserFromSessionToken, listContactMessages } from '@/lib/db';
+import { getNewContactMessagesCount, getUserFromSessionToken } from '@/lib/db';
 
 function BellIcon() {
   return (
@@ -28,13 +28,13 @@ function BellIcon() {
 }
 
 export async function AppShell({ children }: { children: ReactNode }) {
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   const session = verifySession(token);
   const viewer = session ? await getUserFromSessionToken(token) : null;
   const isLoggedIn = Boolean(viewer);
   const isAdmin = viewer?.role === 'admin';
   const newContactCount = isAdmin
-    ? (await listContactMessages()).filter((message) => message.status === 'new').length
+    ? await getNewContactMessagesCount()
     : 0;
 
   const nav = [
@@ -97,7 +97,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
 
       <footer className="site-footer">
         <div className="container site-footer-inner">
-          <p>(c) {new Date().getFullYear()} PRODE Mundial 2026. Sitio web desarrollado por {" "} <a href="https://github.com/amiotti/ProdeAmigos" target="_blank" rel="noreferrer">
+          <p>(c) {new Date().getFullYear()}  {"PRODE Mundial 2026. Sitio web desarrollado por "} <a href="https://github.com/amiotti/ProdeAmigos" target="_blank" rel="noreferrer">
             Agustin Miotti
           </a>.</p>
 
@@ -112,3 +112,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
+
+
+

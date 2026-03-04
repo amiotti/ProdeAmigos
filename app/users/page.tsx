@@ -8,7 +8,7 @@ import { getUserFromSessionToken, listContactMessages, listUsers } from '@/lib/d
 export const dynamic = 'force-dynamic';
 
 export default async function UsersPage() {
-  const token = cookies().get(getSessionCookieName())?.value ?? null;
+  const token = (await cookies()).get(getSessionCookieName())?.value ?? null;
   const user = await getUserFromSessionToken(token);
 
   if (!user) {
@@ -41,3 +41,4 @@ export default async function UsersPage() {
   const [users, messages] = await Promise.all([listUsers(), listContactMessages()]);
   return <UsersPanel initialUsers={users} initialMessages={messages} />;
 }
+
