@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -64,8 +64,8 @@ export function ProfileForm({ user }: { user: User }) {
       <div className="panel stack-md">
         <div className="section-head">
           <h3>Datos de registro</h3>
-          <button className="btn btn-small" type="button" onClick={() => setEditing((prev) => !prev)}>
-            {editing ? 'Cancelar edición' : 'Editar perfil'}
+          <button className="btn btn-primary btn-small" type="button" onClick={() => setEditing((prev) => !prev)}>
+            {editing ? 'Cancelar ediciÃ³n' : 'Editar perfil'}
           </button>
         </div>
 
@@ -83,7 +83,7 @@ export function ProfileForm({ user }: { user: User }) {
             <strong>{user.email}</strong>
           </div>
           <div className="detail-card">
-            <span className="detail-label">Teléfono</span>
+            <span className="detail-label">TelÃ©fono</span>
             <strong>{user.phone}</strong>
           </div>
           <div className="detail-card">
@@ -95,14 +95,14 @@ export function ProfileForm({ user }: { user: User }) {
             <strong>{user.role === 'admin' ? 'Administrador' : 'Usuario'}</strong>
           </div>
           <div className="detail-card">
-            <span className="detail-label">Estado inscripción</span>
+            <span className="detail-label">Estado inscripciÃ³n</span>
             <strong>{user.registrationPaymentStatus ?? 'pending'}</strong>
           </div>
         </div>
 
         <div className="cta-row">
-          <button className="btn btn-danger" type="button" onClick={logout} disabled={loggingOut}>
-            {loggingOut ? 'Saliendo...' : 'Cerrar sesión'}
+          <button className="btn btn-primary" type="button" onClick={logout} disabled={loggingOut}>
+            {loggingOut ? 'Saliendo...' : 'Cerrar sesiÃ³n'}
           </button>
         </div>
         {status ? <p className="status">{status}</p> : null}
@@ -123,7 +123,7 @@ export function ProfileForm({ user }: { user: User }) {
             <input value={user.email} disabled />
           </label>
           <label>
-            Teléfono
+            TelÃ©fono
             <input value={phone} onChange={(e) => setPhone(e.target.value)} required />
           </label>
           <label>
@@ -131,13 +131,13 @@ export function ProfileForm({ user }: { user: User }) {
             <input value={bankInfo} onChange={(e) => setBankInfo(e.target.value)} required />
           </label>
           <label>
-            Nueva contraseña (opcional)
+            Nueva contraseÃ±a (opcional)
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               minLength={8}
-              placeholder="Dejar vacío para no cambiar"
+              placeholder="Dejar vacÃ­o para no cambiar"
             />
           </label>
           <div className="cta-row">
@@ -153,4 +153,5 @@ export function ProfileForm({ user }: { user: User }) {
     </section>
   );
 }
+
 

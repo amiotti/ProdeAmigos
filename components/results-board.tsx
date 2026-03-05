@@ -264,7 +264,7 @@ export function ResultsBoard({ initialState = null }: { initialState?: StateResp
         </div>
 
         {state.viewer.isAdmin ? (
-          <button className="btn btn-danger" type="button" onClick={save} disabled={saving}>
+          <button className="btn btn-primary" type="button" onClick={save} disabled={saving}>
             {saving ? 'Guardando...' : 'Guardar resultados oficiales'}
           </button>
         ) : null}
@@ -358,6 +358,7 @@ export function ResultsBoard({ initialState = null }: { initialState?: StateResp
     </section>
   );
 }
+
 
 
 
