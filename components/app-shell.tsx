@@ -97,7 +97,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
 
       <footer className="site-footer">
         <div className="container site-footer-inner">
-          <p>(c) {new Date().getFullYear()}  {"PRODE Mundial 2026. Sitio web desarrollado por "} <a href="https://github.com/amiotti/ProdeAmigos" target="_blank" rel="noreferrer">
+          <p>(c) {new Date().getFullYear()}  PRODE Mundial 2026. Sitio web desarrollado por  <a href="https://github.com/amiotti/ProdeAmigos" target="_blank" rel="noreferrer">
             Agustin Miotti
           </a>.</p>
 
