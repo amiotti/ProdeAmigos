@@ -97,35 +97,37 @@ export function RegisterForm({ registrationAmountArs }: { registrationAmountArs:
         />
       </label>
 
-      <label className="auth-legal-check">
-        <input
-          type="checkbox"
-          checked={acceptedTerms}
-          onChange={(e) => setAcceptedTerms(e.target.checked)}
-          required
-        />
-        <span className="auth-legal-text">
-          Acepto los{' '}
-          <Link href="/terms" className="auth-legal-link" target="_blank" rel="noreferrer">
-            T&amp;C
-          </Link>
-        </span>
-      </label>
+      <div className="auth-legal-check" role="group" aria-label="Consentimientos legales">
+        <label className="auth-legal-row">
+          <span className="auth-legal-text">
+            Acepto los{' '}
+            <Link href="/terms" className="auth-legal-link" target="_blank" rel="noreferrer">
+              Términos y Condiciones
+            </Link>
+          </span>
+          <input
+            type="checkbox"
+            checked={acceptedTerms}
+            onChange={(e) => setAcceptedTerms(e.target.checked)}
+            required
+          />
+        </label>
 
-      <label className="auth-legal-check">
-        <input
-          type="checkbox"
-          checked={acceptedPrivacy}
-          onChange={(e) => setAcceptedPrivacy(e.target.checked)}
-          required
-        />
-        <span className="auth-legal-text">
-          Acepto la{' '}
-          <Link href="/privacy" className="auth-legal-link" target="_blank" rel="noreferrer">
-            Política de Privacidad
-          </Link>
-        </span>
-      </label>
+        <label className="auth-legal-row">
+          <span className="auth-legal-text">
+            Acepto las{' '}
+            <Link href="/privacy" className="auth-legal-link" target="_blank" rel="noreferrer">
+              Políticas de Privacidad
+            </Link>
+          </span>
+          <input
+            type="checkbox"
+            checked={acceptedPrivacy}
+            onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+            required
+          />
+        </label>
+      </div>
 
       <button className="btn btn-primary" disabled={loading || !acceptedTerms || !acceptedPrivacy} type="submit">
         {loading ? 'Creando usuario...' : 'Registrarme'}
@@ -139,3 +141,5 @@ export function RegisterForm({ registrationAmountArs }: { registrationAmountArs:
     </form>
   );
 }
+
+
